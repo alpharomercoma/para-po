@@ -1,9 +1,10 @@
 import NavBar from "@/components/Navbar";
+import Route from "@/components/Route";
 const Home = () => {
   return (
     <main className="w-full">
       <NavBar />
-      <h1>Hello World</h1>
+      <Route />
     </main>
   );
 }
