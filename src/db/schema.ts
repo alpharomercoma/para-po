@@ -12,9 +12,9 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { AdapterAccount } from "next-auth/adapters";
 
 type AdapterAccountType = AdapterAccount["type"];
+import { env } from "@/env";
 
-const connectionString = "postgres://postgres:postgres@localhost:5432/drizzle";
-const pool = postgres(connectionString, { max: 1 });
+const pool = postgres(env.DATABASE_URL, { max: 1 });
 
 export const db = drizzle(pool);
 
