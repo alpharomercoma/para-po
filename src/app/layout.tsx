@@ -52,7 +52,7 @@ export default function RootLayout({
     <html lang="en">
       <NextAuthProvider>
       <body
-        className={`${ttNorms.variable} antialiased`}
+          className={`${ttNorms.variable} antialiased bg-white`}
       >
         {children}
         </body>
