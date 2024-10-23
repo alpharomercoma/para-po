@@ -9,13 +9,13 @@ const letters = [
     color: "blue",
     rotate: 10,
     size: "text-[12rem]",
-    left: 0,
+    left: -10,
     top: 0,
   },
   {
     letter: "a",
     color: "pink",
-    rotate: 20,
+    rotate: 10,
     size: "text-[10rem]",
     left: 20,
     top: 40,
@@ -54,7 +54,7 @@ const letters = [
   },
 ];
 
-export default function Component() {
+export default function LandingAnimation() {
   const letterRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
