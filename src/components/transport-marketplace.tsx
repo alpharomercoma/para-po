@@ -32,7 +32,7 @@ const featuredDeals = [
 ];
 
 export function TransportMarketplaceComponent() {
-  const [points, setPoints] = useState(15000);
+  const [points] = useState(15000);
   const [selectedCategory, setSelectedCategory] = useState('All');
 
   const filteredRewards = selectedCategory === 'All'
@@ -52,7 +52,7 @@ export function TransportMarketplaceComponent() {
           <CardContent>
             <Progress value={75} className="w-full" />
             <p className="text-sm text-muted-foreground mt-2">
-              You're 5,000 points away from Gold Tier!
+              You&apos;re 5,000 points away from Gold Tier!
             </p>
           </CardContent>
         </Card>
