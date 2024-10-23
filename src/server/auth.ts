@@ -5,8 +5,8 @@ import {
     type NextAuthOptions,
 } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-
-import { db } from "@/db/schema";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { db } from "@/db";
 import { env } from "@/env";
 
 /**
@@ -45,7 +45,7 @@ export const authOptions: NextAuthOptions = {
             },
         }),
     },
-    adapter: DrizzleAdapter(db),
+    adapter: PrismaAdapter(db),
     providers: [
         GoogleProvider({
             clientId: env.GOOGLE_ID,
@@ -62,7 +62,7 @@ export const authOptions: NextAuthOptions = {
          */
     ],
     pages: {
-        signIn: "/auth/signin",
+        signIn: "/",
     },
     secret: env.NEXTAUTH_SECRET,
     debug: process.env.NODE_ENV === "development",
