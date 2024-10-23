@@ -13,6 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Eye, Filter, MessageSquare, PlusCircle, Search, Share2, Tag, ThumbsDown, ThumbsUp, TrendingUp, Users } from 'lucide-react';
+import Image from "next/image";
 import { useState } from 'react';
 
 export function ForumTemplateComponent() {
@@ -101,7 +102,7 @@ export function ForumTemplateComponent() {
     }
   ];
 
-  const handleFilterChange: (key: string, value: any) => void = (key, value) => {
+  const handleFilterChange: (key: string, value: string | string[]) => void = (key, value) => {
     setSelectedFilters(prev => ({ ...prev, [key]: value }));
   };
 
@@ -123,7 +124,7 @@ export function ForumTemplateComponent() {
               <div className="flex-grow">
                 <h3 className="font-semibold text-xl mb-2">Proposal: 24/7 Bus Services on EDSA</h3>
                 <p className="text-gray-600 mb-4">
-                  Let's discuss the feasibility and potential benefits of implementing round-the-clock bus services on EDSA to alleviate traffic congestion and provide more transportation options for night shift workers.
+                  Let&apos;s discuss the feasibility and potential benefits of implementing round-the-clock bus services on EDSA to alleviate traffic congestion and provide more transportation options for night shift workers.
                 </p>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
@@ -140,7 +141,7 @@ export function ForumTemplateComponent() {
                 </div>
               </div>
               <div className="md:w-1/4 flex-shrink-0">
-                <img src="/placeholder.svg?height=150&width=200" alt="Featured discussion" className="w-full h-auto rounded-lg object-cover" />
+                <Image src="/placeholder.svg?height=150&width=200" width={200} height={150} alt="Featured discussion" className="w-full h-auto rounded-lg object-cover" />
               </div>
             </div>
           </CardContent>
@@ -405,7 +406,7 @@ export function ForumTemplateComponent() {
                 <div className="space-y-4">
                   {communities.map((community, index) => (
                     <div key={index} className="flex items-start space-x-4">
-                      <img src={community.image} alt={community.name} className="w-12 h-12 rounded-full" />
+                      <Image src={community.image} width={50} height={50} alt={community.name} className="w-12 h-12 rounded-full" />
                       <div className="flex-1">
                         <h3 className="font-semibold">{community.name}</h3>
                         <p className="text-sm text-gray-500 line-clamp-2">{community.description}</p>
