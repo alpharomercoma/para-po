@@ -1,8 +1,9 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import { CgProfile } from "react-icons/cg";
 import {
@@ -11,6 +12,7 @@ import {
 import { FaPeopleGroup, FaShop } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import Logo from "./Logo";
+
 interface NavLink {
     name: string;
     href: string;
@@ -41,6 +43,7 @@ const navLinks: NavLink[] = [
 ];
 
 const NavBar: React.FC = () => {
+    const { data: session, status } = useSession();
     return (
         <header className="sticky flex justify-center bg-background top-0 left-0 z-50 w-full fill-transparent shadow-sm dark:bg-gray-950 dark:text-gray-50">
             <div className="container flex h-16 items-center justify-between px-4 md:px-6">
@@ -93,11 +96,21 @@ const NavBar: React.FC = () => {
                                 {link.name}
                             </Link>
                         ))}
-                        <Button className="w-full items-center" size="lg" variant="outline"
-                            onClick={() => signIn("google")}>
-                            <FcGoogle className="h-12 w-12" />
-                            Signin
-                        </Button>
+                        {
+                            status === "authenticated" ? (
+                                <Avatar>
+                                    <AvatarImage src={session?.user?.image || ""} alt={session?.user?.name || ""} />
+                                    <AvatarFallback>{session?.user?.name?.charAt(0)}</AvatarFallback>
+                                </Avatar>
+
+                            ) : (
+                                    <Button className="w-full items-center" size="lg" variant="outline"
+                                        onClick={() => signIn("google")}>
+                                        <FcGoogle className="h-12 w-12" />
+                                        Signin
+                                    </Button>
+                            )
+                        }
                     </nav>
                 </div>
             </div>
