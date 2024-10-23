@@ -5,11 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
-import { CgProfile } from "react-icons/cg";
 import {
     FaRoute
 } from "react-icons/fa";
-import { FaPeopleGroup, FaShop } from "react-icons/fa6";
+import { FaHouse, FaPeopleGroup, FaShop } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import Logo from "./Logo";
 
@@ -20,6 +19,11 @@ interface NavLink {
 }
 
 const navLinks: NavLink[] = [
+    {
+        name: "Home",
+        href: "/",
+        icon: <FaHouse className="h-6 w-6" />,
+    },
     {
         name: "Route",
         href: "/route",
@@ -35,17 +39,13 @@ const navLinks: NavLink[] = [
         href: "/marketplace",
         icon: <FaShop className="h-6 w-6" />,
     },
-    {
-        name: "Profile",
-        href: "/profile",
-        icon: <CgProfile className="h-6 w-6" />,
-    },
 ];
 
 const NavBar: React.FC = () => {
     const { data: session, status } = useSession();
     return (
         <header className="sticky flex justify-center bg-background top-0 left-0 z-50 w-full fill-transparent shadow-sm dark:bg-gray-950 dark:text-gray-50">
+
             <div className="container flex h-16 items-center justify-between px-4 md:px-6">
                 <Sheet>
                     <SheetTrigger asChild>
@@ -55,10 +55,11 @@ const NavBar: React.FC = () => {
                         </Button>
                     </SheetTrigger>
 
-                    <Link className="flex items-center gap-2" href="#">
+                    <Link className="md:flex items-center gap-2 hidden" href="/">
                         <Logo dimension={32} />
                         <span className="text-lg font-semibold">Para Po!</span>
                     </Link>
+
                     <SheetContent side="left" className="bg-white">
                         <div className="flex flex-col justify-between h-full">
                             <div className="grid gap-4 p-4">
@@ -73,19 +74,10 @@ const NavBar: React.FC = () => {
                                     </Link>
                                 ))}
                             </div>
-                            <div className="flex gap-4 p-4 flex-col">
-                                <Button className="w-full items-center" size="lg" variant="outline" onClick={() => signIn("google")} >
-                                    <FcGoogle className="h-12 w-12" />
-                                    Signin with Google
-                                </Button>
-                            </div>
                         </div>
                     </SheetContent>
                 </Sheet>
-                <div className="flex items-center gap-4 md:gap-2">
-                    <div className="flex items-center gap-2 md:gap-4">
-
-                    </div>
+                <div className="hidden md:flex items-center gap-4 md:gap-2">
                     <nav className="hidden items-center gap-6 md:flex">
                         {navLinks.map((link) => (
                             <Link
@@ -112,6 +104,27 @@ const NavBar: React.FC = () => {
                             )
                         }
                     </nav>
+                </div>
+                <Link className="flex items-center gap-2 md:hidden" href="/">
+                    <Logo dimension={32} />
+                    <span className="text-lg font-semibold">Para Po!</span>
+                </Link>
+                <div className="flex items-center gap-4 md:hidden">
+                    {
+                        status === "authenticated" ? (
+                            <Avatar>
+                                <AvatarImage src={session?.user?.image || ""} alt={session?.user?.name || ""} />
+                                <AvatarFallback>{session?.user?.name?.charAt(0)}</AvatarFallback>
+                            </Avatar>
+
+                        ) : (
+                            <Button className="w-full items-center" size="lg" variant="outline"
+                                onClick={() => signIn("google")}>
+                                <FcGoogle className="h-12 w-12" />
+                                Signin
+                            </Button>
+                        )
+                    }
                 </div>
             </div>
         </header>
