@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Bell, Calendar, ChevronRight, CreditCard, HelpCircle, Lock, LogOut, Map, Plus, Settings, Ticket } from 'lucide-react';
 import { useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import React from 'react';
 import AvatarComponent from "./Avatar";
 export function ProfilePageComponent() {
@@ -266,7 +267,9 @@ export function ProfilePageComponent() {
                       <SettingsItem icon={<Bell className="h-5 w-5" />} label="Notifications" />
                       <SettingsItem icon={<Lock className="h-5 w-5" />} label="Privacy & Security" />
                       <SettingsItem icon={<HelpCircle className="h-5 w-5" />} label="Help & Support" />
-                      <SettingsItem icon={<LogOut className="h-5 w-5" />} label="Log Out" />
+                      <SettingsItem icon={<LogOut className="h-5 w-5" />} label="Sign Out" onClick={async () => {
+                        await signOut();
+                      }} />
                     </ul>
                   </CardContent>
                 </Card>
@@ -355,10 +358,10 @@ function PaymentMethod({ name, last4, isDefault = false }: { name: string; last4
   );
 }
 
-function SettingsItem({ icon, label }: { icon: React.ReactNode; label: string; }) {
+function SettingsItem({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick?: () => void; }) {
   return (
     <li>
-      <Button variant="ghost" className="w-full justify-start">
+      <Button variant="ghost" className="w-full justify-start" onClick={onClick}>
         {icon}
         <span className="ml-2">{label}</span>
       </Button>

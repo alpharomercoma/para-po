@@ -44,7 +44,7 @@ const navLinks: NavLink[] = [
 const NavBar: React.FC = () => {
     const { status } = useSession();
     return (
-        <header className="sticky flex justify-center bg-background top-0 left-0 z-50 w-full fill-transparent shadow-sm dark:bg-gray-950 dark:text-gray-50">
+        <header className="sticky flex backdrop-blur-2xl justify-center bg-background top-0 left-0 z-50 w-full shadow-sm dark:bg-gray-950 dark:text-gray-50">
 
             <div className="container flex h-16 items-center justify-between px-4 md:px-6">
                 <Sheet>
