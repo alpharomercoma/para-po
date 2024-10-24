@@ -9,7 +9,7 @@ datasource db {
 
 // Community Models
 model ForumTag {
-  id    Int         @id @default(autoincrement())
+  id    String      @id @default(cuid())
   name  String      @unique
   posts ForumPost[]
 
@@ -17,9 +17,10 @@ model ForumTag {
 }
 
 model ForumPost {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(cuid())
   title       String
   body        String
+  image       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   createdById String
@@ -38,62 +39,51 @@ model ForumPost {
 }
 
 model ForumFeaturedPost {
-  id        Int      @id @default(autoincrement())
-  postId    Int
+  postId    String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   post ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  @@index([postId])
+  @@id([postId])
   @@map("forum_featured_posts")
 }
 
 model ForumPostLike {
-  id     Int    @id @default(autoincrement())
-  postId Int
+  postId String
   userId String
 
   post ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
   user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([postId, userId])
-  @@index([userId])
-  @@index([postId])
+  @@id([postId, userId])
   @@map("forum_post_likes")
 }
 
 model ForumPostDislike {
-  id     Int    @id @default(autoincrement())
-  postId Int
+  postId String
   userId String
 
   post ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
   user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([postId, userId])
-  @@index([userId])
-  @@index([postId])
+  @@id([postId, userId])
   @@map("forum_post_dislikes")
 }
 
 model ForumPostView {
-  id     Int    @id @default(autoincrement())
-  postId Int
+  postId String
   userId String
 
   post ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
   user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([postId, userId])
-  @@index([userId])
-  @@index([postId])
+  @@id([postId, userId])
   @@map("forum_post_views")
 }
 
 model ForumPostComment {
-  id          Int      @id @default(autoincrement())
-  postId      Int
+  id          String   @id @default(cuid())
+  postId      String
   body        String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -108,8 +98,10 @@ model ForumPostComment {
 }
 
 model Community {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(cuid())
   name        String   @unique
+  description String
+  image       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   createdById String
@@ -122,23 +114,20 @@ model Community {
 }
 
 model CommunityMember {
-  id          Int    @id @default(autoincrement())
-  communityId Int
+  communityId String
   userId      String
   role        String
 
   community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([communityId, userId])
-  @@index([userId])
-  @@index([communityId])
+  @@id([communityId, userId])
   @@map("community_members")
 }
 
 // Route Models
 model SavedTrip {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(cuid())
   name        String
   origin      String
   destination String
@@ -153,7 +142,7 @@ model SavedTrip {
 }
 
 model UserTrip {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(cuid())
   name        String
   origin      String
   destination String
@@ -169,7 +158,7 @@ model UserTrip {
 
 // Marketplace Models
 model RewardCategory {
-  id      Int      @id @default(autoincrement())
+  id      String   @id @default(cuid())
   name    String   @unique
   rewards Reward[]
 
@@ -177,11 +166,11 @@ model RewardCategory {
 }
 
 model Reward {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(cuid())
   name        String
   description String
   points      Int
-  categoryId  Int
+  categoryId  String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -193,20 +182,18 @@ model Reward {
 }
 
 model RewardRedemption {
-  id         Int      @id @default(autoincrement())
-  rewardId   Int
+  rewardId   String
   userId     String
   redeemedAt DateTime @default(now())
 
   reward Reward @relation(fields: [rewardId], references: [id], onDelete: Cascade)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId])
-  @@index([rewardId])
+  @@id([rewardId, userId])
   @@map("reward_redemptions")
 }
 
-// Auth Models
+// Auth Models remain unchanged as they already use cuid
 model Account {
   id                       String  @id @default(cuid())
   userId                   String

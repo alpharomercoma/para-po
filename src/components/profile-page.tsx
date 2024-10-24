@@ -11,6 +11,7 @@ import { useSession } from "next-auth/react";
 import { signOut } from "next-auth/react";
 import React from 'react';
 import AvatarComponent from "./Avatar";
+import Link from "next/link";
 export function ProfilePageComponent() {
   const { data: session } = useSession();
 
@@ -145,7 +146,9 @@ export function ProfilePageComponent() {
                       <span className="text-sm text-muted-foreground">Next reward: 5,000 points</span>
                     </div>
                     <Progress value={50} className="w-full" />
-                    <Button className="w-full mt-4">View Rewards Catalog</Button>
+                    <Button className="w-full mt-4">
+                      <Link href="/marketplace" className="w-full">View Rewards Catalog</Link>
+                    </Button>
                   </CardContent>
                 </Card>
 

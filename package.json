@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma-reset": "npx prisma db push --force-reset && pnpm prisma db seed"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.2",
@@ -37,6 +38,7 @@
     "spline": "^0.0.0",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.19.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -49,5 +51,8 @@
     "prisma": "^5.21.1",
     "tailwindcss": "^3.4.14",
     "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   }
 }

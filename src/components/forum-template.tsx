@@ -4,17 +4,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Eye, Filter, MessageSquare, PlusCircle, Search, Share2, Tag, ThumbsDown, ThumbsUp, TrendingUp, Users } from 'lucide-react';
 import Image from "next/image";
-import { signOut } from "next-auth/react";
 import { useState } from 'react';
 
 export function ForumTemplateComponent() {
@@ -30,7 +26,7 @@ export function ForumTemplateComponent() {
   const recentDiscussions = [
     {
       title: 'LRT Line 1 Extension Progress',
-      description: 'Updates on the construction and timeline of the LRT Line 1 extension to Cavite. Discuss potential impact on commuters and surrounding areas.',
+      body: 'Updates on the construction and timeline of the LRT Line 1 extension to Cavite. Discuss potential impact on commuters and surrounding areas.',
       views: 1200,
       likes: 45,
       dislikes: 3,
@@ -40,7 +36,7 @@ export function ForumTemplateComponent() {
     },
     {
       title: 'Bus Rapid Transit System Proposal',
-      description: 'Examining the proposed Bus Rapid Transit (BRT) system for Metro Manila. Share your thoughts on its feasibility and potential benefits.',
+      body: 'Examining the proposed Bus Rapid Transit (BRT) system for Metro Manila. Share your thoughts on its feasibility and potential benefits.',
       views: 980,
       likes: 67,
       dislikes: 5,
@@ -50,7 +46,7 @@ export function ForumTemplateComponent() {
     },
     {
       title: 'Improving Jeepney Routes',
-      description: 'Discussing strategies to optimize jeepney routes for better efficiency and coverage. Share your ideas on route improvements in your area.',
+      body: 'Discussing strategies to optimize jeepney routes for better efficiency and coverage. Share your ideas on route improvements in your area.',
       views: 1500,
       likes: 89,
       dislikes: 12,
@@ -60,7 +56,7 @@ export function ForumTemplateComponent() {
     },
     {
       title: 'New Bike Lanes in Makati',
-      description: 'Updates on the new bike lane network in Makati City. Discuss the impact on cyclists and overall traffic flow in the central business district.',
+      body: 'Updates on the new bike lane network in Makati City. Discuss the impact on cyclists and overall traffic flow in the central business district.',
       views: 750,
       likes: 120,
       dislikes: 8,
@@ -70,7 +66,7 @@ export function ForumTemplateComponent() {
     },
     {
       title: 'Pasig River Ferry Expansion Plans',
-      description: 'Exploring the proposed expansion of the Pasig River Ferry service. Share your thoughts on new routes and improved facilities.',
+      body: 'Exploring the proposed expansion of the Pasig River Ferry service. Share your thoughts on new routes and improved facilities.',
       views: 620,
       likes: 55,
       dislikes: 4,
@@ -80,26 +76,26 @@ export function ForumTemplateComponent() {
     },
   ];
 
-  const categories = ['All', 'Bus', 'Train', 'Jeepney', 'Taxi', 'Ride-sharing', 'Infrastructure', 'Cycling', 'Pedestrian'];
+  const tags = ['Bus', 'Train', 'Jeepney', 'Taxi', 'Ride-sharing', 'Infrastructure', 'Cycling', 'Pedestrian'];
 
   const communities = [
     {
       name: 'Metro Manila Commuters',
       image: '/placeholder.svg?height=50&width=50',
       members: 15000,
-      description: 'A community for daily commuters in Metro Manila to share experiences, tips, and discuss transportation issues.'
+      body: 'A community for daily commuters in Metro Manila to share experiences, tips, and discuss transportation issues.'
     },
     {
       name: 'PH Transport Innovations',
       image: '/placeholder.svg?height=50&width=50',
       members: 8500,
-      description: 'Discussing and promoting innovative transportation solutions for Philippine cities.'
+      body: 'Discussing and promoting innovative transportation solutions for Philippine cities.'
     },
     {
       name: 'Bike Commuters Manila',
       image: '/placeholder.svg?height=50&width=50',
       members: 6200,
-      description: 'For cyclists who use their bikes for daily commute in Metro Manila. Share routes, safety tips, and advocacy efforts.'
+      body: 'For cyclists who use their bikes for daily commute in Metro Manila. Share routes, safety tips, and advocacy efforts.'
     }
   ];
 
@@ -199,23 +195,6 @@ export function ForumTemplateComponent() {
                           <Textarea id="description" className="w-full min-h-[200px]" placeholder="Provide a detailed description of your discussion topic..." />
                         </div>
                         <div className="grid gap-2">
-                          <Label htmlFor="category">
-                            Category
-                          </Label>
-                          <Select>
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select a category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {categories.map((category) => (
-                                <SelectItem key={category} value={category.toLowerCase()}>
-                                  {category}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="grid gap-2">
                           <Label htmlFor="tags">
                             Tags
                           </Label>
@@ -260,45 +239,13 @@ export function ForumTemplateComponent() {
                         </div>
                         <div className="grid gap-2">
                           <Label>Tags</Label>
-                          <ScrollArea className="h-[100px] w-full rounded-md border p-4">
-                            <div className="grid gap-2">
-                              {['Infrastructure', 'Bus', 'Train', 'Jeepney', 'Cycling'].map((tag) => (
-                                <div key={tag} className="flex items-center space-x-2">
-                                  <Checkbox
-                                    id={tag}
-                                    checked={selectedFilters.tags.includes(tag)}
-                                    onCheckedChange={(checked) => {
-                                      if (checked) {
-                                        handleFilterChange('tags', [...selectedFilters.tags, tag]);
-                                      } else {
-                                        handleFilterChange('tags', selectedFilters.tags.filter(t => t !== tag));
-                                      }
-                                    }}
-                                  />
-                                  <label htmlFor={tag} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                    {tag}
-                                  </label>
-                                </div>
-                              ))}
-                            </div>
-                          </ScrollArea>
-                        </div>
-                        <div className="grid gap-2">
-                          <Label>Status</Label>
-                          <RadioGroup defaultValue="all">
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="all" id="all" />
-                              <Label htmlFor="all">All</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="answered" id="answered" />
-                              <Label htmlFor="answered">Answered</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="unanswered" id="unanswered" />
-                              <Label htmlFor="unanswered">Unanswered</Label>
-                            </div>
-                          </RadioGroup>
+                          <Input
+                            id="tags"
+                            className="w-full"
+                            placeholder="Separate tags with commas"
+                            value={selectedFilters.tags.join(',')}
+                            onChange={(e) => handleFilterChange('tags', e.target.value.split(',').map(tag => tag.trim()))}
+                          />
                         </div>
                       </div>
                       <DialogFooter>
@@ -314,7 +261,7 @@ export function ForumTemplateComponent() {
                   <div key={index} className="mb-4 p-4 bg-white rounded-lg shadow transition-all duration-200 hover:shadow-md">
                     <h3 className="font-semibold text-lg mb-2">{discussion.title}</h3>
                     <p className="text-gray-600 mb-2 line-clamp-3">
-                      {discussion.description}{' '}
+                      {discussion.body}{' '}
                       <span className="font-bold cursor-pointer">...Read more</span>
                     </p>
                     <div className="flex flex-wrap items-center justify-between text-sm text-gray-500 mb-2">
@@ -386,13 +333,13 @@ export function ForumTemplateComponent() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Categories</CardTitle>
+                <CardTitle>Tags</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
-                  {categories.map((category, index) => (
+                  {tags.map((tag, index) => (
                     <Button key={index} variant="outline" size="sm">
-                      #{category}
+                      <Tag className="w-3 h-3 mr-1" />{tag}
                     </Button>
                   ))}
                 </div>
@@ -410,7 +357,7 @@ export function ForumTemplateComponent() {
                       <Image src={community.image} width={50} height={50} alt={community.name} className="w-12 h-12 rounded-full" />
                       <div className="flex-1">
                         <h3 className="font-semibold">{community.name}</h3>
-                        <p className="text-sm text-gray-500 line-clamp-2">{community.description}</p>
+                        <p className="text-sm text-gray-500 line-clamp-2">{community.body}</p>
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-xs text-gray-500">
                             <Users className="inline w-4 h-4 mr-1" />
