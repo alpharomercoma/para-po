@@ -25,7 +25,6 @@
     "@shadcn/ui": "^0.0.4",
     "@splinetool/react-spline": "^4.0.0",
     "@t3-oss/env-nextjs": "^0.11.1",
-    "@types/geojson": "^7946.0.14",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "gsap": "^3.12.5",
