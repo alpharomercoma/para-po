@@ -1,6 +1,5 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { signIn, useSession } from "next-auth/react";
@@ -10,6 +9,7 @@ import {
 } from "react-icons/fa";
 import { FaHouse, FaPeopleGroup, FaShop } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
+import AvatarComponent from "./Avatar";
 import Logo from "./Logo";
 
 interface NavLink {
@@ -42,7 +42,7 @@ const navLinks: NavLink[] = [
 ];
 
 const NavBar: React.FC = () => {
-    const { data: session, status } = useSession();
+    const { status } = useSession();
     return (
         <header className="sticky flex justify-center bg-background top-0 left-0 z-50 w-full fill-transparent shadow-sm dark:bg-gray-950 dark:text-gray-50">
 
@@ -89,13 +89,12 @@ const NavBar: React.FC = () => {
                             </Link>
                         ))}
                         {
-                            status === "authenticated" ? (
-                                <Avatar>
-                                    <AvatarImage src={session?.user?.image || ""} alt={session?.user?.name || ""} />
-                                    <AvatarFallback>{session?.user?.name?.charAt(0)}</AvatarFallback>
-                                </Avatar>
-
-                            ) : (
+                            status === "authenticated" ?
+                                (
+                                    <Link href="/profile">
+                                        <AvatarComponent />
+                                    </Link>
+                                ) : (
                                     <Button className="w-full items-center" size="lg" variant="outline"
                                         onClick={() => signIn("google")}>
                                         <FcGoogle className="h-12 w-12" />
@@ -112,11 +111,9 @@ const NavBar: React.FC = () => {
                 <div className="flex items-center gap-4 md:hidden">
                     {
                         status === "authenticated" ? (
-                            <Avatar>
-                                <AvatarImage src={session?.user?.image || ""} alt={session?.user?.name || ""} />
-                                <AvatarFallback>{session?.user?.name?.charAt(0)}</AvatarFallback>
-                            </Avatar>
-
+                            <Link href="/profile">
+                                <AvatarComponent />
+                            </Link>
                         ) : (
                             <Button className="w-full items-center" size="lg" variant="outline"
                                 onClick={() => signIn("google")}>
