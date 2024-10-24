@@ -1,18 +1,13 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { env } from "@/env";
-import {
-  Autocomplete,
-  DirectionsRenderer,
-  GoogleMap,
-  Libraries,
-  useLoadScript,
-} from "@react-google-maps/api";
 import { Bus, Car, Train } from "lucide-react";
+import 'mapbox-gl/dist/mapbox-gl.css';
+import { useCallback, useRef, useState } from "react";
+import Map, { Layer, Source, ViewState } from 'react-map-gl';
 
 // Types
 interface RouteInfo {
@@ -20,40 +15,42 @@ interface RouteInfo {
   duration: string;
   carbonEmission: string;
 }
-
-interface MapConfig {
-  center: {
-    lat: number;
-    lng: number;
-  };
-  zoom: number;
-  options: google.maps.MapOptions;
+interface Coordinates {
+  lng: number;
+  lat: number;
 }
 
 // Constants
-const LIBRARIES: Libraries = ["places"];
 const EMISSION_FACTOR = 0.12; // kg CO2 per km (average car)
+const MAPBOX_TOKEN = env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
-const INITIAL_MAP_CONFIG: MapConfig = {
-  center: {
-    lat: 14.5995,
-    lng: 120.9842, // Manila, Philippines
-  },
-  zoom: 10,
-  options: {
-    zoomControl: false,
-    streetViewControl: false,
-    mapTypeControl: false,
-    fullscreenControl: false,
-    disableDefaultUI: true,
-  },
+const INITIAL_VIEW_STATE: Partial<ViewState> = {
+  longitude: 120.9842,
+  latitude: 14.5995,
+  zoom: 10
 };
 
 // Custom hook for route calculations
 const useRouteCalculator = () => {
-  const [directionsResponse, setDirectionsResponse] =
-    useState<google.maps.DirectionsResult | null>(null);
+  const [route, setRoute] = useState<GeoJSON.Feature | null>(null);
   const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
+
+  const getCoordinatesFromAddress = async (address: string): Promise<Coordinates | null> => {
+    try {
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${MAPBOX_TOKEN}`
+      );
+      const data = await response.json();
+      if (data.features && data.features.length > 0) {
+        const [lng, lat] = data.features[0].center;
+        return { lng, lat };
+      }
+      return null;
+    } catch (error) {
+      console.error("Error geocoding address:", error);
+      return null;
+    }
+  };
 
   const calculateRoute = useCallback(
     async (
@@ -65,26 +62,42 @@ const useRouteCalculator = () => {
       }
 
       try {
-        const directionsService = new google.maps.DirectionsService();
-        const results = await directionsService.route({
-          origin: originRef.current.value,
-          destination: destinationRef.current.value,
-          travelMode: google.maps.TravelMode.DRIVING,
-        });
+        const originCoords = await getCoordinatesFromAddress(originRef.current.value);
+        const destCoords = await getCoordinatesFromAddress(destinationRef.current.value);
 
-        setDirectionsResponse(results);
+        if (!originCoords || !destCoords) {
+          console.error("Could not find coordinates for addresses");
+          return;
+        }
 
-        const distance = results.routes[0].legs[0].distance?.text || "";
-        const duration = results.routes[0].legs[0].duration?.text || "";
-        const distanceInKm = results.routes[0].legs[0].distance?.value
-          ? results.routes[0].legs[0].distance.value / 1000
-          : 0;
+        const response = await fetch(
+          `https://api.mapbox.com/directions/v5/mapbox/driving/${originCoords.lng},${originCoords.lat};${destCoords.lng},${destCoords.lat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`
+        );
 
-        setRouteInfo({
-          distance,
-          duration,
-          carbonEmission: (distanceInKm * EMISSION_FACTOR).toFixed(2),
-        });
+        const data = await response.json();
+
+        if (data.routes && data.routes.length > 0) {
+          const route = data.routes[0];
+
+          // Create GeoJSON feature for the route
+          const routeGeoJSON: GeoJSON.Feature = {
+            type: 'Feature',
+            properties: {},
+            geometry: route.geometry
+          };
+
+          setRoute(routeGeoJSON);
+
+          // Calculate route information
+          const distanceInKm = route.distance / 1000;
+          const durationInMinutes = route.duration / 60;
+
+          setRouteInfo({
+            distance: `${distanceInKm.toFixed(1)} km`,
+            duration: `${Math.round(durationInMinutes)} mins`,
+            carbonEmission: (distanceInKm * EMISSION_FACTOR).toFixed(2)
+          });
+        }
       } catch (error) {
         console.error("Error calculating route:", error);
       }
@@ -97,7 +110,7 @@ const useRouteCalculator = () => {
       originRef: React.RefObject<HTMLInputElement>,
       destinationRef: React.RefObject<HTMLInputElement>
     ) => {
-      setDirectionsResponse(null);
+      setRoute(null);
       setRouteInfo(null);
       if (originRef.current) originRef.current.value = "";
       if (destinationRef.current) destinationRef.current.value = "";
@@ -106,120 +119,80 @@ const useRouteCalculator = () => {
   );
 
   return {
-    directionsResponse,
+    route,
     routeInfo,
     calculateRoute,
     clearRoute,
   };
 };
 
+// Route layer style
+const routeLayer: mapboxgl.LayerSpecification = {
+  id: 'route',
+  type: 'line',
+  layout: {
+    'line-join': 'round',
+    'line-cap': 'round'
+  },
+  paint: {
+    'line-color': '#007cbf',
+    'line-width': 8,
+    'line-opacity': 0.8
+  }
+};
+
 // Main component
 export function EcoRoute() {
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: env.NEXT_PUBLIC_GOOGLE_MAP_API,
-    libraries: LIBRARIES,
-  });
-
   const originRef = useRef<HTMLInputElement>(null);
   const destinationRef = useRef<HTMLInputElement>(null);
-  const originAutoCompleteRef = useRef<google.maps.places.Autocomplete | null>(
-    null
-  );
-  const destinationAutoCompleteRef =
-    useRef<google.maps.places.Autocomplete | null>(null);
+  const { route, routeInfo, calculateRoute, clearRoute } = useRouteCalculator();
 
-  const { directionsResponse, routeInfo, calculateRoute, clearRoute } =
-    useRouteCalculator();
-
-  const onLoadOrigin = (autocomplete: google.maps.places.Autocomplete) => {
-    originAutoCompleteRef.current = autocomplete;
-  };
-
-  const onPlaceChangedOrigin = () => {
-    if (originAutoCompleteRef.current) {
-      const place = originAutoCompleteRef.current.getPlace();
-      // You can also extract necessary data from the place object
-      // Example: console.log(place.formatted_address);
-      if (place && originRef.current) {
-        originRef.current.value = place.formatted_address || "";
-      }
+  // Suggestions handler
+  const handleSuggestions = async (inputRef: React.RefObject<HTMLInputElement>, value: string) => {
+    try {
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(value)}.json?access_token=${MAPBOX_TOKEN}`
+      );
+      const data = await response.json();
+      // You can implement a suggestions dropdown here using the features from data
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
     }
   };
-
-  const onLoadDestination = (autocomplete: google.maps.places.Autocomplete) => {
-    destinationAutoCompleteRef.current = autocomplete;
-  };
-
-  const onPlaceChangedDestination = () => {
-    if (destinationAutoCompleteRef.current) {
-      const place = destinationAutoCompleteRef.current.getPlace();
-      if (place && destinationRef.current) {
-        destinationRef.current.value = place.formatted_address || "";
-      }
-    }
-  };
-
-  if (loadError) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-red-500">Error loading maps</p>
-      </div>
-    );
-  }
-
-  if (!isLoaded) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <p>Loading maps...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="relative w-full h-screen">
-      <GoogleMap
-        mapContainerClassName="w-full h-full"
-        center={INITIAL_MAP_CONFIG.center}
-        zoom={INITIAL_MAP_CONFIG.zoom}
-        options={INITIAL_MAP_CONFIG.options}
+      <Map
+        mapboxAccessToken={MAPBOX_TOKEN}
+        initialViewState={INITIAL_VIEW_STATE}
+        style={{ width: '100%', height: '100%' }}
+        mapStyle="mapbox://styles/mapbox/streets-v11"
       >
-        {directionsResponse && (
-          <DirectionsRenderer
-            directions={directionsResponse}
-            options={{
-              suppressMarkers: false,
-              preserveViewport: false,
-            }}
-          />
+        {route && (
+          <Source type="geojson" data={route}>
+            <Layer {...routeLayer} />
+          </Source>
         )}
-      </GoogleMap>
+      </Map>
 
       <div className="absolute m-4 md:top-0 md:left-0 bottom-0 left-0 right-0 md:right-auto">
         <Card className="bg-white/90 backdrop-blur-sm">
           <CardContent className="p-4">
             <div className="flex flex-col md:flex-row gap-4 mb-4">
-              <Autocomplete
-                onLoad={onLoadOrigin}
-                onPlaceChanged={onPlaceChangedOrigin}
-              >
-                <Input
-                  ref={originRef}
-                  placeholder="Origin"
-                  className="flex-grow"
-                  aria-label="Origin location"
-                />
-              </Autocomplete>
-              <Autocomplete
-                onLoad={onLoadDestination}
-                onPlaceChanged={onPlaceChangedDestination}
-              >
-                <Input
-                  ref={destinationRef}
-                  placeholder="Destination"
-                  className="flex-grow"
-                  aria-label="Destination location"
-                />
-              </Autocomplete>
+              <Input
+                ref={originRef}
+                placeholder="Origin"
+                className="flex-grow"
+                aria-label="Origin location"
+                onChange={(e) => handleSuggestions(originRef, e.target.value)}
+              />
+              <Input
+                ref={destinationRef}
+                placeholder="Destination"
+                className="flex-grow"
+                aria-label="Destination location"
+                onChange={(e) => handleSuggestions(destinationRef, e.target.value)}
+              />
               <div className="flex flex-col md:flex-row gap-2 md:gap-4">
                 <Button
                   onClick={() => calculateRoute(originRef, destinationRef)}

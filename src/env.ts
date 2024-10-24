@@ -13,6 +13,7 @@ export const env = createEnv({
     },
     client: {
         NEXT_PUBLIC_GOOGLE_MAP_API: z.string(),
+        NEXT_PUBLIC_MAPBOX_TOKEN: z.string(),
     },
     runtimeEnv: {
         DATABASE_URL: process.env.DATABASE_URL,
@@ -20,6 +21,7 @@ export const env = createEnv({
         GOOGLE_SECRET: process.env.GOOGLE_SECRET,
         NODE_ENV: process.env.NODE_ENV,
         NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+        NEXT_PUBLIC_MAPBOX_TOKEN: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
         NEXT_PUBLIC_GOOGLE_MAP_API: process.env.NEXT_PUBLIC_GOOGLE_MAP_API,
     },
 });
