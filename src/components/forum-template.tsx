@@ -336,9 +336,9 @@ const ForumTemplateComponent: React.FC<ForumTemplateProps> = ({ props: { forumPo
         </div>
       </main>
 
-      <footer className="bg-blue-600 text-white p-4 mt-8">
+      <footer className="bg-foreground text-white p-4 mt-8">
         <div className="container mx-auto text-center">
-          <p>&copy; 2023 Metro Manila Transport Forum. All rights reserved.</p>
+          <p>&copy; 2024 Para Po! All rights reserved.</p>
         </div>
       </footer>
     </div>

@@ -26,20 +26,20 @@ model ForumPost {
   createdById String
 
   // Denormalized counters for better performance
-  viewCount     Int     @default(0)
-  likeCount     Int     @default(0)
-  dislikeCount  Int     @default(0)
-  commentCount  Int     @default(0)
+  viewCount    Int @default(0)
+  likeCount    Int @default(0)
+  dislikeCount Int @default(0)
+  commentCount Int @default(0)
 
   // Relations
-  tags      ForumTag[] @relation("PostTags")
-  createdBy User       @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  tags      ForumTag[]         @relation("PostTags")
+  createdBy User               @relation(fields: [createdById], references: [id], onDelete: Cascade)
   comments  ForumPostComment[]
 
   // Materialized interaction records
   interactions ForumPostInteraction[]
 
-  featured  ForumFeaturedPost[]
+  featured ForumFeaturedPost[]
 
   @@index([createdById])
   @@map("forum_posts")
@@ -47,14 +47,14 @@ model ForumPost {
 
 // Consolidated interaction tracking
 model ForumPostInteraction {
-  id        String   @id @default(cuid())
+  id        String          @id @default(cuid())
   postId    String
   userId    String
   type      InteractionType
-  createdAt DateTime @default(now())
+  createdAt DateTime        @default(now())
 
   post ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([postId, userId, type])
   @@index([postId, type])
@@ -93,6 +93,7 @@ model ForumPostComment {
   @@index([createdById])
   @@map("forum_post_comments")
 }
+
 // Optimized Community Models
 model Community {
   id          String   @id @default(cuid())
@@ -105,23 +106,23 @@ model Community {
   createdById String
 
   // Denormalized counters
-  memberCount        Int     @default(0)
-  adminCount        Int     @default(0)
-  moderatorCount    Int     @default(0)
-  totalPosts        Int     @default(0)
-  totalComments     Int     @default(0)
+  memberCount    Int @default(0)
+  adminCount     Int @default(0)
+  moderatorCount Int @default(0)
+  totalPosts     Int @default(0)
+  totalComments  Int @default(0)
 
   // Engagement metrics
-  weeklyActiveMembers Int     @default(0)
-  monthlyActiveMembers Int    @default(0)
-  lastActivityAt      DateTime @default(now())
+  weeklyActiveMembers  Int      @default(0)
+  monthlyActiveMembers Int      @default(0)
+  lastActivityAt       DateTime @default(now())
 
   // Community health score (can be calculated based on various metrics)
-  engagementScore    Float    @default(0)
+  engagementScore Float @default(0)
 
   // Cached arrays for quick access (limit size in application logic)
-  recentMembers      Json?    // Store last N members who joined
-  topContributors    Json?    // Store top N contributors
+  recentMembers   Json? // Store last N members who joined
+  topContributors Json? // Store top N contributors
 
   // Relations
   createdBy User              @relation(fields: [createdById], references: [id], onDelete: Cascade)
@@ -132,9 +133,9 @@ model Community {
   status     CommunityStatus     @default(ACTIVE)
 
   // Metadata for discovery
-  tags              String[]
-  category          String?
-  primaryLanguage   String?
+  tags            String[]
+  category        String?
+  primaryLanguage String?
 
   @@index([createdById])
   @@index([status, visibility])
@@ -162,22 +163,22 @@ enum CommunityRole {
 }
 
 model CommunityMember {
-  id            String       @default(cuid())
-  communityId   String
-  userId        String
-  role          CommunityRole @default(MEMBER)
-  joinedAt      DateTime     @default(now())
-  lastActiveAt  DateTime     @default(now())
+  id           String        @default(cuid())
+  communityId  String
+  userId       String
+  role         CommunityRole @default(MEMBER)
+  joinedAt     DateTime      @default(now())
+  lastActiveAt DateTime      @default(now())
 
   // Contribution metrics
-  totalPosts    Int         @default(0)
-  totalComments Int         @default(0)
-  reputation    Int         @default(0)
+  totalPosts    Int @default(0)
+  totalComments Int @default(0)
+  reputation    Int @default(0)
 
   // Moderation status
-  isBanned      Boolean     @default(false)
-  banReason     String?
-  bannedUntil   DateTime?
+  isBanned    Boolean   @default(false)
+  banReason   String?
+  bannedUntil DateTime?
 
   // Activity tracking
   lastPostAt    DateTime?
@@ -195,10 +196,14 @@ model CommunityMember {
 
 // Route Models
 model SavedTrip {
-  id          String   @id @default(cuid())
+  id          String @id @default(cuid())
   name        String
   origin      String
   destination String
+  distance    Float
+  duration    Int
+  carbonSaved Float
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   createdById String
@@ -214,6 +219,9 @@ model UserTrip {
   name        String
   origin      String
   destination String
+  distance    Float
+  duration    Int
+  carbonSaved Float
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   createdById String
@@ -309,18 +317,17 @@ model User {
   sessions Session[]
 
   // Feature relations
-  forumPosts        ForumPost[]
+  forumPosts ForumPost[]
 
-
-  communities       Community[]
-  communityMembers  CommunityMember[]
-  comments          ForumPostComment[]
-  savedTrips        SavedTrip[]
-  userTrips         UserTrip[]
-  rewardRedemptions RewardRedemption[]
+  communities          Community[]
+  communityMembers     CommunityMember[]
+  comments             ForumPostComment[]
+  savedTrips           SavedTrip[]
+  userTrips            UserTrip[]
+  rewardRedemptions    RewardRedemption[]
+  ForumPostInteraction ForumPostInteraction[]
 
   @@map("users")
-  ForumPostInteraction ForumPostInteraction[]
 }
 
 model VerificationToken {
