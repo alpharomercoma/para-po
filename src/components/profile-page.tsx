@@ -4,15 +4,22 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SavedTrip, UserTrip } from "@prisma/client";
 import { Bell, Calendar, ChevronRight, CreditCard, HelpCircle, Lock, LogOut, Map, Plus, Settings, Ticket } from 'lucide-react';
-import { useSession } from "next-auth/react";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import Link from "next/link";
 import React from 'react';
 import AvatarComponent from "./Avatar";
-import Link from "next/link";
-export function ProfilePageComponent() {
+
+interface Props {
+  props: {
+    savedTrips: SavedTrip[];
+    userTrips: UserTrip[];
+  };
+}
+
+const ProfilePageComponent: React.FC<Props> = ({ props: { savedTrips, userTrips } }) => {
   const { data: session } = useSession();
 
   return (
@@ -36,7 +43,7 @@ export function ProfilePageComponent() {
                     <p className="text-xs text-muted-foreground">Trips</p>
                   </div>
                   <div>
-                    <p className="font-bold">2,500</p>
+                    <p className="font-bold">{session?.user.rewardPoints}</p>
                     <p className="text-xs text-muted-foreground">Points</p>
                   </div>
                   <div>
@@ -68,24 +75,19 @@ export function ProfilePageComponent() {
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-4">
-                      <TripItem
-                        from="Quezon Avenue"
-                        to="Ayala"
-                        date="May 15, 2023"
-                        price="₱25"
-                      />
-                      <TripItem
-                        from="North Avenue"
-                        to="Taft Avenue"
-                        date="May 14, 2023"
-                        price="₱30"
-                      />
-                      <TripItem
-                        from="Cubao"
-                        to="Buendia"
-                        date="May 13, 2023"
-                        price="₱20"
-                      />
+                      {
+                        userTrips.map((trip, index) => (
+                          <TripItem
+                            key={index}
+                            origin={trip.origin}
+                            destination={trip.destination}
+                            date={trip.createdAt.toDateString()}
+                            distance={trip.distance.toString()}
+                            duration={trip.duration.toString()}
+                            carbonSaved={trip.carbonSaved.toString()}
+                          />
+                        ))
+                      }
                     </ul>
                   </CardContent>
                 </Card>
@@ -100,9 +102,11 @@ export function ProfilePageComponent() {
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
-                      <SavedRoute from="Home" to="Office" />
-                      <SavedRoute from="Office" to="Gym" />
-                      <SavedRoute from="Home" to="Mall" />
+                      {
+                        savedTrips.map((trip, index) => (
+                          <SavedRoute key={index} origin={trip.origin} destination={trip.destination} />
+                        ))
+                      }
                     </ul>
                   </CardContent>
                 </Card>
@@ -141,12 +145,7 @@ export function ProfilePageComponent() {
                     <CardDescription>Earn and redeem for rewards</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-semibold">2,500 points</span>
-                      <span className="text-sm text-muted-foreground">Next reward: 5,000 points</span>
-                    </div>
-                    <Progress value={50} className="w-full" />
-                    <Button className="w-full mt-4">
+                    <Button className="w-full">
                       <Link href="/marketplace" className="w-full">View Rewards Catalog</Link>
                     </Button>
                   </CardContent>
@@ -306,24 +305,27 @@ export function ProfilePageComponent() {
       </main>
     </div>
   );
-}
+};
 
-function TripItem({ from, to, date, price }: { from: string; to: string; date: string; price: string; }) {
+function TripItem({ origin, destination, date, distance, duration, carbonSaved }: { origin: string; destination: string; date: string; distance: string; duration: string; carbonSaved: string; }) {
   return (
     <li className="flex justify-between items-center">
       <div>
-        <p className="font-semibold">{from} to {to}</p>
+        <p className="font-semibold">{origin} to {destination}</p>
         <p className="text-sm text-muted-foreground">{date}</p>
       </div>
-      <span className="font-bold">{price}</span>
+      <div>
+        <p className="font-bold">{distance} km • {duration}</p>
+        <p className="text-sm text-muted-foreground">{carbonSaved} kg CO2 saved</p>
+      </div>
     </li>
   );
 }
 
-function SavedRoute({ from, to }: { from: string; to: string; }) {
+function SavedRoute({ origin, destination }: { origin: string; destination: string; }) {
   return (
     <li className="flex justify-between  items-center">
-      <span>{from} to {to}</span>
+      <span>{origin} to {destination}</span>
       <Button variant="ghost" size="sm">
         <Map className="h-4 w-4" />
       </Button>
@@ -424,3 +426,5 @@ function NotificationPreference({ label, description }: { label: string; descrip
     </div>
   );
 }
+
+export { ProfilePageComponent };

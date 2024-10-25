@@ -296,7 +296,10 @@ const ForumTemplateComponent: React.FC<ForumTemplateProps> = ({ props: { forumPo
                 <div className="space-y-4">
                   {communities.map((community, index) => (
                     <div key={index} className="flex items-start space-x-4">
-                      <Image src={community.image || ""} width={50} height={50} alt={community.name} className="w-12 h-12 rounded-full" />
+                      <Avatar>
+                        <AvatarImage src={community.image || ""} alt={community.name} />
+                        <AvatarFallback>{community.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
                       <div className="flex-1">
                         <h3 className="font-semibold">{community.name}</h3>
                         <p className="text-sm text-gray-500 line-clamp-2">{community.description}</p>

@@ -1,11 +1,12 @@
 'use client';
 
+import { Rewards } from "@/app/marketplace/page";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bike, Bus, Car, Coffee, CreditCard, Gift, Phone, ShoppingBag, Train, Zap } from 'lucide-react';
+import { Bus, Coffee, Gift, ShoppingBag, Zap } from 'lucide-react';
 import { useState } from 'react';
 
 const rewardCategories = [
@@ -15,30 +16,27 @@ const rewardCategories = [
   { name: 'Entertainment', icon: <Gift className="h-6 w-6" /> },
 ];
 
-const rewardItems = [
-  { name: '₱50 eCash', points: 5000, icon: <CreditCard className="h-6 w-6" />, category: 'Shopping' },
-  { name: '10% Off Next Ride', points: 3000, icon: <Bus className="h-6 w-6" />, category: 'Transport' },
-  { name: '₱100 Prepaid Load', points: 8000, icon: <Phone className="h-6 w-6" />, category: 'Entertainment' },
-  { name: 'Free LRT Ride', points: 2000, icon: <Train className="h-6 w-6" />, category: 'Transport' },
-  { name: 'Grab ₱200 Voucher', points: 10000, icon: <Car className="h-6 w-6" />, category: 'Transport' },
-  { name: '1-Day Bike Rental', points: 7000, icon: <Bike className="h-6 w-6" />, category: 'Transport' },
-  { name: 'Jollibee Meal Voucher', points: 6000, icon: <Coffee className="h-6 w-6" />, category: 'Food' },
-  { name: 'SM Cinema Ticket', points: 9000, icon: <Gift className="h-6 w-6" />, category: 'Entertainment' },
-];
-
 const featuredDeals = [
   { name: 'Double Points Weekend', description: 'Earn 2x points on all rides this weekend', icon: <Zap className="h-6 w-6" /> },
   { name: 'Flash Sale: 50% Off Rewards', description: 'Limited time offer on select items', icon: <Gift className="h-6 w-6" /> },
 ];
-
-export function TransportMarketplaceComponent() {
-  const [points] = useState(15000);
+interface Props {
+  props: {
+    rewards: Rewards;
+  };
+}
+const TransportMarketplaceComponent: React.FC<Props> = ({ props: { rewards } }) => {
+  const [points] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState('All');
 
   const filteredRewards = selectedCategory === 'All'
-    ? rewardItems
-    : rewardItems.filter(item => item.category === selectedCategory);
+    ? rewards
+    : rewards.filter(item => item.category.name === selectedCategory);
 
+  const pointsToNextReward = rewards.find(reward => reward.points > points)?.points;
+  const progressTilNextReward = pointsToNextReward
+    ? (points / pointsToNextReward) * 100
+    : 100;
   return (
     <div className="min-h-screen bg-gray-100">
       <main className="container mx-auto p-4">
@@ -50,9 +48,12 @@ export function TransportMarketplaceComponent() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Progress value={75} className="w-full" />
+            <Progress value={progressTilNextReward} />
             <p className="text-sm text-muted-foreground mt-2">
-              You&apos;re 5,000 points away from Gold Tier!
+              {pointsToNextReward
+                ? `You need ${pointsToNextReward - points} more points to reach your next reward`
+                : 'You have enough points to redeem any reward'}
+
             </p>
           </CardContent>
         </Card>
@@ -105,11 +106,11 @@ export function TransportMarketplaceComponent() {
                 <Card key={index}>
                   <CardContent className="p-4 flex flex-col items-center">
                     <div className="bg-primary/10 p-3 rounded-full mb-2">
-                      {item.icon}
+                      {rewardCategories.find(category => category.name === item.category.name)?.icon}
                     </div>
                     <h3 className="font-semibold text-center">{item.name}</h3>
                     <p className="text-sm text-muted-foreground">{item.points} points</p>
-                    <Badge variant="secondary" className="mt-2">{item.category}</Badge>
+                    <Badge variant="secondary" className="mt-2">{item.category.name}</Badge>
                   </CardContent>
                   <CardFooter>
                     <Button className="w-full" disabled={points < item.points}>Redeem</Button>
@@ -125,7 +126,7 @@ export function TransportMarketplaceComponent() {
               </CardHeader>
               <CardContent>
                 <ul className="list-disc pl-5 space-y-2">
-                  <li>Use public transport: 10 points per ride</li>
+                  <li>Use public transport: 100 points per ride</li>
                   <li>Refer a friend: 1000 points</li>
                   <li>Complete surveys: 100-500 points per survey</li>
                   <li>Participate in eco-challenges: Up to 2000 points</li>
@@ -138,4 +139,6 @@ export function TransportMarketplaceComponent() {
       </main>
     </div>
   );
-}
+};
+
+export { TransportMarketplaceComponent };
