@@ -1,5 +1,6 @@
 'use client';
 
+import { FeaturedForumData, ForumData } from "@/app/forum/page";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,11 +10,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Community, ForumTag } from "@prisma/client";
 import { Eye, Filter, MessageSquare, PlusCircle, Search, Share2, Tag, ThumbsDown, ThumbsUp, TrendingUp, Users } from 'lucide-react';
 import Image from "next/image";
 import { useState } from 'react';
+interface ForumTemplateProps {
+  props: {
+    forumPosts: ForumData;
+    featured: FeaturedForumData;
+    communities: Community[];
+    tagData: ForumTag[];
+  };
+}
 
-export function ForumTemplateComponent() {
+const ForumTemplateComponent: React.FC<ForumTemplateProps> = ({ props: { forumPosts, communities, tagData, featured } }) => {
   const [isContributeOpen, setIsContributeOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
@@ -22,82 +32,6 @@ export function ForumTemplateComponent() {
     answered: false,
     unanswered: false,
   });
-
-  const recentDiscussions = [
-    {
-      title: 'LRT Line 1 Extension Progress',
-      body: 'Updates on the construction and timeline of the LRT Line 1 extension to Cavite. Discuss potential impact on commuters and surrounding areas.',
-      views: 1200,
-      likes: 45,
-      dislikes: 3,
-      dateTime: '2023-05-15T14:30:00',
-      user: { name: 'Maria Santos', avatar: '/placeholder.svg?height=32&width=32' },
-      tags: ['Infrastructure', 'Train', 'LRT']
-    },
-    {
-      title: 'Bus Rapid Transit System Proposal',
-      body: 'Examining the proposed Bus Rapid Transit (BRT) system for Metro Manila. Share your thoughts on its feasibility and potential benefits.',
-      views: 980,
-      likes: 67,
-      dislikes: 5,
-      dateTime: '2023-05-14T09:15:00',
-      user: { name: 'Jose Reyes', avatar: '/placeholder.svg?height=32&width=32' },
-      tags: ['Bus', 'Infrastructure', 'Public Transport']
-    },
-    {
-      title: 'Improving Jeepney Routes',
-      body: 'Discussing strategies to optimize jeepney routes for better efficiency and coverage. Share your ideas on route improvements in your area.',
-      views: 1500,
-      likes: 89,
-      dislikes: 12,
-      dateTime: '2023-05-13T18:45:00',
-      user: { name: 'Ana Lim', avatar: '/placeholder.svg?height=32&width=32' },
-      tags: ['Jeepney', 'Routes', 'Public Transport']
-    },
-    {
-      title: 'New Bike Lanes in Makati',
-      body: 'Updates on the new bike lane network in Makati City. Discuss the impact on cyclists and overall traffic flow in the central business district.',
-      views: 750,
-      likes: 120,
-      dislikes: 8,
-      dateTime: '2023-05-12T11:20:00',
-      user: { name: 'Miguel Cruz', avatar: '/placeholder.svg?height=32&width=32' },
-      tags: ['Cycling', 'Infrastructure', 'Makati']
-    },
-    {
-      title: 'Pasig River Ferry Expansion Plans',
-      body: 'Exploring the proposed expansion of the Pasig River Ferry service. Share your thoughts on new routes and improved facilities.',
-      views: 620,
-      likes: 55,
-      dislikes: 4,
-      dateTime: '2023-05-11T16:00:00',
-      user: { name: 'Sofia Garcia', avatar: '/placeholder.svg?height=32&width=32' },
-      tags: ['Ferry', 'Pasig River', 'Public Transport']
-    },
-  ];
-
-  const tags = ['Bus', 'Train', 'Jeepney', 'Taxi', 'Ride-sharing', 'Infrastructure', 'Cycling', 'Pedestrian'];
-
-  const communities = [
-    {
-      name: 'Metro Manila Commuters',
-      image: '/placeholder.svg?height=50&width=50',
-      members: 15000,
-      body: 'A community for daily commuters in Metro Manila to share experiences, tips, and discuss transportation issues.'
-    },
-    {
-      name: 'PH Transport Innovations',
-      image: '/placeholder.svg?height=50&width=50',
-      members: 8500,
-      body: 'Discussing and promoting innovative transportation solutions for Philippine cities.'
-    },
-    {
-      name: 'Bike Commuters Manila',
-      image: '/placeholder.svg?height=50&width=50',
-      members: 6200,
-      body: 'For cyclists who use their bikes for daily commute in Metro Manila. Share routes, safety tips, and advocacy efforts.'
-    }
-  ];
 
   const handleFilterChange: (key: string, value: string | string[]) => void = (key, value) => {
     setSelectedFilters(prev => ({ ...prev, [key]: value }));
@@ -109,40 +43,48 @@ export function ForumTemplateComponent() {
     setIsFilterOpen(false);
   };
 
+
+  const featuredPost = featured?.post;
+
   return (
     <div className="min-h-screen">
       <main className="container mx-auto p-4 space-y-4">
-        <Card className="bg-white shadow-lg border-2 border-blue-200">
-          <CardHeader>
-            <CardTitle className="text-2xl text-blue-600">Featured Discussion</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-grow">
-                <h3 className="font-semibold text-xl mb-2">Proposal: 24/7 Bus Services on EDSA</h3>
-                <p className="text-gray-600 mb-4">
-                  Let&apos;s discuss the feasibility and potential benefits of implementing round-the-clock bus services on EDSA to alleviate traffic congestion and provide more transportation options for night shift workers.
-                </p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Avatar className="w-8 h-8 mr-2">
-                      <AvatarImage src="/placeholder.svg?height=32&width=32" alt="@juandelacruz" />
-                      <AvatarFallback>JC</AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium">Juan dela Cruz</span>
-                      <span className="text-xs text-gray-500">2023-05-16 09:30 AM</span>
+        {
+          featured &&
+          <Card className="bg-white shadow-lg border-2 border-blue-200">
+            <CardHeader>
+              <CardTitle className="text-2xl text-blue-600">Featured Discussion</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-grow">
+                    <h3 className="font-semibold text-xl mb-2">{
+                      featuredPost?.title
+                    }</h3>
+                    <p className="text-gray-600 mb-4">
+                      {featuredPost?.body}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Avatar className="w-8 h-8 mr-2">
+                          <AvatarImage src={featuredPost?.createdBy.image || ""} alt={featuredPost?.createdBy.name || ""} />
+                          <AvatarFallback>{featuredPost?.createdBy.name?.charAt(0) || ""}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium">{featuredPost?.createdBy.name}</span>
+                          <span className="text-xs text-gray-500">{new Date(featuredPost?.createdAt || "").toLocaleString()}</span>
+                        </div>
+                      </div>
+                      <Badge variant="secondary">Hot Topic</Badge>
                     </div>
                   </div>
-                  <Badge variant="secondary">Hot Topic</Badge>
+                  <div className="md:w-1/4 flex-shrink-0">
+                    <Image src="/placeholder.svg?height=150&width=200" width={200} height={150} alt="Featured discussion" className="w-full h-auto rounded-lg object-cover" />
+                  </div>
                 </div>
-              </div>
-              <div className="md:w-1/4 flex-shrink-0">
-                <Image src="/placeholder.svg?height=150&width=200" width={200} height={150} alt="Featured discussion" className="w-full h-auto rounded-lg object-cover" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+        }
 
         <div className="md:hidden mb-4">
           <Card>
@@ -257,20 +199,20 @@ export function ForumTemplateComponent() {
                 </div>
               </CardHeader>
               <CardContent>
-                {recentDiscussions.map((discussion, index) => (
+                {forumPosts.map((post, index) => (
                   <div key={index} className="mb-4 p-4 bg-white rounded-lg shadow transition-all duration-200 hover:shadow-md">
-                    <h3 className="font-semibold text-lg mb-2">{discussion.title}</h3>
+                    <h3 className="font-semibold text-lg mb-2">{post.title}</h3>
                     <p className="text-gray-600 mb-2 line-clamp-3">
-                      {discussion.body}{' '}
+                      {post.body}{' '}
                       <span className="font-bold cursor-pointer">...Read more</span>
                     </p>
                     <div className="flex flex-wrap items-center justify-between text-sm text-gray-500 mb-2">
                       <div className="flex flex-wrap items-center gap-4">
                         <div className="flex items-center">
                           <ThumbsUp className="w-4 h-4 mr-1" />
-                          <span className="mr-2">{discussion.likes}</span>
+                          <span className="mr-2">{post.likeCount}</span>
                           <ThumbsDown className="w-4 h-4 mr-1" />
-                          <span>{discussion.dislikes}</span>
+                          <span>{post.dislikeCount}</span>
                         </div>
                         <div className="flex items-center">
                           <MessageSquare className="w-4 h-4 mr-1" />
@@ -278,7 +220,7 @@ export function ForumTemplateComponent() {
                         </div>
                         <div className="flex items-center">
                           <Eye className="w-4 h-4 mr-1" />
-                          <span className="mr-4">{discussion.views}</span>
+                          <span className="mr-4">{post.viewCount}</span>
                         </div>
                         <Button variant="ghost" size="sm" className="p-0">
                           <Share2 className="w-4 h-4 mr-1" />
@@ -287,20 +229,20 @@ export function ForumTemplateComponent() {
                       </div>
                       <div className="flex items-center mt-2 sm:mt-0">
                         <Avatar className="w-8 h-8 mr-2">
-                          <AvatarImage src={discussion.user.avatar} alt={discussion.user.name} />
-                          <AvatarFallback>{discussion.user.name.charAt(0)}</AvatarFallback>
+                          <AvatarImage src={post.createdBy.image || ""} alt={post.createdBy.name || ""} />
+                          <AvatarFallback>{post.createdBy.name?.charAt(0) || ""}</AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col">
-                          <span className="text-sm font-medium">{discussion.user.name}</span>
-                          <span className="text-xs">{new Date(discussion.dateTime).toLocaleString()}</span>
+                          <span className="text-sm font-medium">{post.createdBy.name}</span>
+                          <span className="text-xs">{new Date(post.createdAt).toLocaleString()}</span>
                         </div>
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {discussion.tags.map((tag, tagIndex) => (
+                      {post.tags.map((tag, tagIndex) => (
                         <Badge key={tagIndex} variant="secondary" className="text-xs">
                           <Tag className="w-3 h-3 mr-1" />
-                          {tag}
+                          {tag.name}
                         </Badge>
                       ))}
                     </div>
@@ -337,9 +279,9 @@ export function ForumTemplateComponent() {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
-                  {tags.map((tag, index) => (
+                  {tagData.map((tag, index) => (
                     <Button key={index} variant="outline" size="sm">
-                      <Tag className="w-3 h-3 mr-1" />{tag}
+                      <Tag className="w-3 h-3 mr-1" />{tag.name}
                     </Button>
                   ))}
                 </div>
@@ -354,14 +296,14 @@ export function ForumTemplateComponent() {
                 <div className="space-y-4">
                   {communities.map((community, index) => (
                     <div key={index} className="flex items-start space-x-4">
-                      <Image src={community.image} width={50} height={50} alt={community.name} className="w-12 h-12 rounded-full" />
+                      <Image src={community.image || ""} width={50} height={50} alt={community.name} className="w-12 h-12 rounded-full" />
                       <div className="flex-1">
                         <h3 className="font-semibold">{community.name}</h3>
-                        <p className="text-sm text-gray-500 line-clamp-2">{community.body}</p>
+                        <p className="text-sm text-gray-500 line-clamp-2">{community.description}</p>
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-xs text-gray-500">
                             <Users className="inline w-4 h-4 mr-1" />
-                            {community.members.toLocaleString()} members
+                            {community.memberCount} members
                           </span>
                           <Button variant="outline" size="sm">Join</Button>
                         </div>
@@ -398,4 +340,6 @@ export function ForumTemplateComponent() {
       </footer>
     </div>
   );
-}
+};
+
+export { ForumTemplateComponent };

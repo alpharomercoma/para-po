@@ -7,11 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Community Models
+// Optimized Forum Models
 model ForumTag {
   id    String      @id @default(cuid())
   name  String      @unique
-  posts ForumPost[]
+  posts ForumPost[] @relation("PostTags")
 
   @@map("forum_tags")
 }
@@ -25,17 +25,47 @@ model ForumPost {
   updatedAt   DateTime @updatedAt
   createdById String
 
+  // Denormalized counters for better performance
+  viewCount     Int     @default(0)
+  likeCount     Int     @default(0)
+  dislikeCount  Int     @default(0)
+  commentCount  Int     @default(0)
+
   // Relations
-  tags      ForumTag[]
-  createdBy User                @relation(fields: [createdById], references: [id], onDelete: Cascade)
-  views     ForumPostView[]
+  tags      ForumTag[] @relation("PostTags")
+  createdBy User       @relation(fields: [createdById], references: [id], onDelete: Cascade)
   comments  ForumPostComment[]
-  likes     ForumPostLike[]
-  dislikes  ForumPostDislike[]
+
+  // Materialized interaction records
+  interactions ForumPostInteraction[]
+
   featured  ForumFeaturedPost[]
 
   @@index([createdById])
   @@map("forum_posts")
+}
+
+// Consolidated interaction tracking
+model ForumPostInteraction {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  type      InteractionType
+  createdAt DateTime @default(now())
+
+  post ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId, type])
+  @@index([postId, type])
+  @@index([userId, type])
+  @@map("forum_post_interactions")
+}
+
+enum InteractionType {
+  VIEW
+  LIKE
+  DISLIKE
 }
 
 model ForumFeaturedPost {
@@ -46,39 +76,6 @@ model ForumFeaturedPost {
 
   @@id([postId])
   @@map("forum_featured_posts")
-}
-
-model ForumPostLike {
-  postId String
-  userId String
-
-  post ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([postId, userId])
-  @@map("forum_post_likes")
-}
-
-model ForumPostDislike {
-  postId String
-  userId String
-
-  post ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([postId, userId])
-  @@map("forum_post_dislikes")
-}
-
-model ForumPostView {
-  postId String
-  userId String
-
-  post ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([postId, userId])
-  @@map("forum_post_views")
 }
 
 model ForumPostComment {
@@ -96,32 +93,103 @@ model ForumPostComment {
   @@index([createdById])
   @@map("forum_post_comments")
 }
-
+// Optimized Community Models
 model Community {
   id          String   @id @default(cuid())
   name        String   @unique
+  slug        String   @unique // For URL-friendly paths
   description String
   image       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   createdById String
 
+  // Denormalized counters
+  memberCount        Int     @default(0)
+  adminCount        Int     @default(0)
+  moderatorCount    Int     @default(0)
+  totalPosts        Int     @default(0)
+  totalComments     Int     @default(0)
+
+  // Engagement metrics
+  weeklyActiveMembers Int     @default(0)
+  monthlyActiveMembers Int    @default(0)
+  lastActivityAt      DateTime @default(now())
+
+  // Community health score (can be calculated based on various metrics)
+  engagementScore    Float    @default(0)
+
+  // Cached arrays for quick access (limit size in application logic)
+  recentMembers      Json?    // Store last N members who joined
+  topContributors    Json?    // Store top N contributors
+
+  // Relations
   createdBy User              @relation(fields: [createdById], references: [id], onDelete: Cascade)
   members   CommunityMember[]
 
+  // For efficient querying
+  visibility CommunityVisibility @default(PUBLIC)
+  status     CommunityStatus     @default(ACTIVE)
+
+  // Metadata for discovery
+  tags              String[]
+  category          String?
+  primaryLanguage   String?
+
   @@index([createdById])
+  @@index([status, visibility])
+  @@index([memberCount])
+  @@index([createdAt])
   @@map("communities")
 }
 
-model CommunityMember {
-  communityId String
-  userId      String
-  role        String
+enum CommunityVisibility {
+  PUBLIC
+  PRIVATE
+  HIDDEN
+}
 
+enum CommunityStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum CommunityRole {
+  ADMIN
+  MODERATOR
+  MEMBER
+}
+
+model CommunityMember {
+  id            String       @default(cuid())
+  communityId   String
+  userId        String
+  role          CommunityRole @default(MEMBER)
+  joinedAt      DateTime     @default(now())
+  lastActiveAt  DateTime     @default(now())
+
+  // Contribution metrics
+  totalPosts    Int         @default(0)
+  totalComments Int         @default(0)
+  reputation    Int         @default(0)
+
+  // Moderation status
+  isBanned      Boolean     @default(false)
+  banReason     String?
+  bannedUntil   DateTime?
+
+  // Activity tracking
+  lastPostAt    DateTime?
+  lastCommentAt DateTime?
+
+  // Relations
   community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([communityId, userId])
+  @@index([userId, role])
+  @@index([communityId, role])
   @@map("community_members")
 }
 
@@ -241,18 +309,18 @@ model User {
   sessions Session[]
 
   // Feature relations
-  posts             ForumPost[]
+  forumPosts        ForumPost[]
+
+
   communities       Community[]
   communityMembers  CommunityMember[]
   comments          ForumPostComment[]
-  likes             ForumPostLike[]
-  dislikes          ForumPostDislike[]
-  views             ForumPostView[]
   savedTrips        SavedTrip[]
   userTrips         UserTrip[]
   rewardRedemptions RewardRedemption[]
 
   @@map("users")
+  ForumPostInteraction ForumPostInteraction[]
 }
 
 model VerificationToken {
