@@ -1,14 +1,13 @@
 "use client";
 
-import type { NextPage } from "next";
-import { Libraries, Polyline, Marker } from "@react-google-maps/api";
-import { useCallback, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { env } from "@/env";
-import { Autocomplete, GoogleMap, useLoadScript } from "@react-google-maps/api";
+import { Autocomplete, GoogleMap, Libraries, Marker, Polyline, useLoadScript } from "@react-google-maps/api";
 import { Bus, Car, Train } from "lucide-react";
+import type { NextPage } from "next";
+import { useCallback, useRef, useState } from "react";
 
 // Enums
 enum TrafficStatus {
@@ -25,7 +24,7 @@ type RouteInfo = {
   durationInTraffic: string;
   carbonEmission: string;
   trafficStatus: string;
-  segments: any[];
+  segments: RouteSegment[];
 };
 
 interface RouteSegment {
@@ -289,12 +288,6 @@ export const EcoRoute: NextPage = () => {
         originRef.current.value = place.formatted_address;
       }
     }
-  };
-
-  const onLoadDestination = (
-    autocomplete: google.maps.places.Autocomplete
-  ): void => {
-    destinationAutoCompleteRef.current = autocomplete;
   };
 
   const onPlaceChangedDestination = (): void => {
