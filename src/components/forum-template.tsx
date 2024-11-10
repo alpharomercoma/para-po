@@ -10,10 +10,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import axios from "@/lib/axios";
 import { Community, ForumTag } from "@prisma/client";
 import { Eye, Filter, MessageSquare, PlusCircle, Search, Share2, Tag, ThumbsDown, ThumbsUp, TrendingUp, Users } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from 'react';
+
 interface ForumTemplateProps {
   props: {
     forumPosts: ForumData;
@@ -24,6 +28,7 @@ interface ForumTemplateProps {
 }
 
 const ForumTemplateComponent: React.FC<ForumTemplateProps> = ({ props: { forumPosts, communities, tagData, featured } }) => {
+  const { data: session } = useSession();
   const [isContributeOpen, setIsContributeOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
@@ -32,6 +37,9 @@ const ForumTemplateComponent: React.FC<ForumTemplateProps> = ({ props: { forumPo
     answered: false,
     unanswered: false,
   });
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+  const [tags, setTags] = useState('');
 
   const handleFilterChange: (key: string, value: string | string[]) => void = (key, value) => {
     setSelectedFilters(prev => ({ ...prev, [key]: value }));
@@ -43,6 +51,33 @@ const ForumTemplateComponent: React.FC<ForumTemplateProps> = ({ props: { forumPo
     setIsFilterOpen(false);
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!session) {
+      alert('You must be logged in to post a discussion');
+      return;
+    }
+
+    try {
+      const response = await axios.post('/forum/discussion', {
+        title,
+        body,
+        tags: tags.split(',').map(tag => tag.trim()),
+      });
+
+      if (response.status === 201) {
+        alert('Discussion posted successfully');
+        setIsContributeOpen(false);
+        setTitle('');
+        setBody('');
+        setTags('');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Failed to post discussion');
+    }
+  };
 
   const featuredPost = featured?.post;
 
@@ -86,7 +121,7 @@ const ForumTemplateComponent: React.FC<ForumTemplateProps> = ({ props: { forumPo
             </Card>
         }
 
-        <div className="md:hidden mb-4">
+        <div className="lg:hidden mb-4">
           <Card>
             <CardContent className="p-4">
               <div className="flex">
@@ -103,7 +138,7 @@ const ForumTemplateComponent: React.FC<ForumTemplateProps> = ({ props: { forumPo
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <section className="md:col-span-2 space-y-4">
             <Card>
               <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
@@ -123,29 +158,31 @@ const ForumTemplateComponent: React.FC<ForumTemplateProps> = ({ props: { forumPo
                           Share your thoughts or questions with the community.
                         </DialogDescription>
                       </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <div className="grid gap-2">
-                          <Label htmlFor="title">
-                            Title
-                          </Label>
-                          <Input id="title" className="w-full" />
+                      <form onSubmit={handleSubmit}>
+                        <div className="grid gap-4 py-4">
+                          <div className="grid gap-2">
+                            <Label htmlFor="title">
+                              Title
+                            </Label>
+                            <Input id="title" className="w-full" value={title} onChange={(e) => setTitle(e.target.value)} required />
+                          </div>
+                          <div className="grid gap-2">
+                            <Label htmlFor="description">
+                              Description
+                            </Label>
+                            <Textarea id="description" className="w-full min-h-[200px]" placeholder="Provide a detailed description of your discussion topic..." value={body} onChange={(e) => setBody(e.target.value)} required />
+                          </div>
+                          <div className="grid gap-2">
+                            <Label htmlFor="tags">
+                              Tags
+                            </Label>
+                            <Input id="tags" className="w-full" placeholder="Separate tags with commas" value={tags} onChange={(e) => setTags(e.target.value)} />
+                          </div>
                         </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="description">
-                            Description
-                          </Label>
-                          <Textarea id="description" className="w-full min-h-[200px]" placeholder="Provide a detailed description of your discussion topic..." />
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="tags">
-                            Tags
-                          </Label>
-                          <Input id="tags" className="w-full" placeholder="Separate tags with commas" />
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button type="submit" onClick={() => setIsContributeOpen(false)}>Post Discussion</Button>
-                      </DialogFooter>
+                        <DialogFooter>
+                          <Button type="submit">Post Discussion</Button>
+                        </DialogFooter>
+                      </form>
                     </DialogContent>
                   </Dialog>
                   <Dialog open={isFilterOpen} onOpenChange={setIsFilterOpen}>
@@ -201,10 +238,11 @@ const ForumTemplateComponent: React.FC<ForumTemplateProps> = ({ props: { forumPo
               <CardContent>
                 {forumPosts.map((post, index) => (
                   <div key={index} className="mb-4 p-4 bg-white rounded-lg shadow transition-all duration-200 hover:shadow-md">
-                    <h3 className="font-semibold text-lg mb-2">{post.title}</h3>
+                    <h3 className="font-semibold text-lg mb-2">
+                      <Link href={`/forum/post/${post.id}`}>{post.title}</Link>
+                    </h3>
                     <p className="text-gray-600 mb-2 line-clamp-3">
                       {post.body}{' '}
-                      <span className="font-bold cursor-pointer">...Read more</span>
                     </p>
                     <div className="flex flex-wrap items-center justify-between text-sm text-gray-500 mb-2">
                       <div className="flex flex-wrap items-center gap-4">
@@ -216,7 +254,7 @@ const ForumTemplateComponent: React.FC<ForumTemplateProps> = ({ props: { forumPo
                         </div>
                         <div className="flex items-center">
                           <MessageSquare className="w-4 h-4 mr-1" />
-                          <span className="mr-4">23</span>
+                          <span className="mr-4">{post.commentCount}</span>
                         </div>
                         <div className="flex items-center">
                           <Eye className="w-4 h-4 mr-1" />
@@ -256,7 +294,7 @@ const ForumTemplateComponent: React.FC<ForumTemplateProps> = ({ props: { forumPo
           </section>
 
           <aside className="space-y-4">
-            <div className="hidden md:block">
+            <div className="hidden lg:block">
               <Card>
                 <CardContent className="p-4">
                   <div className="flex">

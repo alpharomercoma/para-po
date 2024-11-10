@@ -16,6 +16,7 @@ const forumData = await db.forumPost.findMany({
         likeCount: true,
         dislikeCount: true,
         viewCount: true,
+
         commentCount: true,
         tags: true,
         createdBy: {
