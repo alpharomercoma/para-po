@@ -40,6 +40,37 @@ const ttNorms = localFont({
 });
 export const metadata: Metadata = {
   title: "Para Po!",
+  description: "Para Po! is a web application that helps users find the most eco-friendly route to their destination.",
+  applicationName: "Para Po!",
+  keywords: ["eco-friendly", "route", "transportation", "carbon footprint", "sustainability"],
+  creator: "Para Po! Team",
+  robots: "index, follow",
+  icons: "https://parapo.vercel.app/favicon.ico",
+  manifest: "https://parapo.vercel.app/site.webmanifest",
+  authors: [
+    {
+      name: "Fionna Desserei Baculi"
+    },
+    {
+      name: "France Estrella"
+    },
+    {
+      name: "Marc Esquivel"
+    },
+    {
+      name: "Onin Pilueta"
+    },
+    {
+      name: "Xten Tolentino"
+    },
+    {
+      name: "Alpha Romer Coma"
+    },
+    {
+      name: "Rab Karl Colasino"
+    },
+  ],
+
 };
 
 export default function RootLayout({
