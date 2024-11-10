@@ -1,6 +1,5 @@
 import { db } from "@/db";
 import { communities, forumTags, rewardCategory, rewards, user } from "./json/export";
-
 const prismaUserCategory = db.user.createMany({
     data: user
 });
@@ -8,6 +7,7 @@ const prismaUserCategory = db.user.createMany({
 const prismaRewardCategory = db.rewardCategory.createMany({
     data: rewardCategory
 });
+
 const prismaRewards = db.reward.createMany({
     data: rewards
 });
@@ -20,9 +20,10 @@ const prismaForumTags = db.forumTag.createMany({
     data: forumTags
 });
 
-import { Prisma } from "@prisma/client";
-
-function throwAllSettledError(res: PromiseSettledResult<Prisma.BatchPayload>) {
+type BatchPayload = {
+    count: number;
+};
+function throwAllSettledError(res: PromiseSettledResult<BatchPayload>) {
     if (res.status === "rejected")
         throw new Error(res.reason);
 }
@@ -42,6 +43,7 @@ async function main() {
         ]);
         res1.forEach(throwAllSettledError);
         console.log("Populated round 1");
+
         const res2 = await Promise.allSettled([
             prismaRewards,
             prismaCommunities,
