@@ -1,32 +1,43 @@
+// app/profile/page.tsx
 import { ProfilePageComponent } from "@/components/profile-page";
-import { authOptions } from "@/server/auth";
 import { db } from "@/db";
-import { getServerSession } from "next-auth";
-const session = await getServerSession(authOptions);
-const savedTrips = await db.savedTrip.findMany({
-    where: {
-        createdById: session?.user.id,
-    }
-});
-
-const userTrips = await db.userTrip.findMany({
-    where: {
-        createdById: session?.user.id,
-    }
-});
-
+import { authOptions } from "@/server/auth";
 import { Metadata } from "next";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+
 export const metadata: Metadata = {
     title: "Profile | Para Po!",
 };
 
-const ProfilePage = () => {
-    return (
-        <ProfilePageComponent props={{
-            savedTrips,
-            userTrips
-        }} />
-    );
-};
+export default async function ProfilePage() {
+    const session = await getServerSession(authOptions);
 
-export default ProfilePage;
+    // Redirect to login if not authenticated
+    if (!session) {
+        redirect("/");
+    }
+
+    // Fetch data only if we have a session
+    const [savedTrips, userTrips] = await Promise.all([
+        db.savedTrip.findMany({
+            where: {
+                createdById: session.user.id,
+            },
+        }),
+        db.userTrip.findMany({
+            where: {
+                createdById: session.user.id,
+            },
+        }),
+    ]);
+
+    return (
+        <ProfilePageComponent
+            props={{
+                savedTrips,
+                userTrips,
+            }}
+        />
+    );
+}

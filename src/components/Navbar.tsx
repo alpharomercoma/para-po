@@ -1,8 +1,8 @@
 "use client";
-
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { signIn, useSession } from "next-auth/react";
+import { SignIn } from '@/lib/auth-action';
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { FaRoute } from "react-icons/fa";
 import { FaHouse, FaPeopleGroup, FaShop } from "react-icons/fa6";
@@ -94,7 +94,7 @@ const NavBar: React.FC = () => {
                 className="w-full items-center"
                 size="lg"
                 variant="outline"
-                onClick={() => signIn("google")}
+                  onClick={() => SignIn()}
               >
                 <FcGoogle className="h-12 w-12" />
                 Signin
@@ -116,7 +116,7 @@ const NavBar: React.FC = () => {
               className="w-full items-center"
               size="lg"
               variant="outline"
-              onClick={() => signIn("google")}
+                onClick={() => SignIn()}
             >
               <FcGoogle className="h-12 w-12" />
               Signin

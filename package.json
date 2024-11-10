@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prisma-reset": "npx prisma db push --force-reset && pnpm prisma db seed"
+    "prisma-reset": "npx prisma db push --force-reset && npx prisma db seed"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.2",
@@ -29,6 +29,7 @@
     "@t3-oss/env-nextjs": "^0.11.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "critters": "^0.0.25",
     "gsap": "^3.12.5",
     "lucide-react": "^0.453.0",
     "next": "15.0.0",

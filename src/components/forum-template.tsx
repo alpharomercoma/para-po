@@ -108,7 +108,7 @@ const ForumTemplateComponent: React.FC<ForumTemplateProps> = ({ props: { forumPo
             <Card>
               <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
                 <CardTitle>Recent Discussions</CardTitle>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 justify-end">
                   <Dialog open={isContributeOpen} onOpenChange={setIsContributeOpen}>
                     <DialogTrigger asChild>
                       <Button>
