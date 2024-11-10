@@ -15,6 +15,11 @@ const userTrips = await db.userTrip.findMany({
     }
 });
 
+import { Metadata } from "next";
+export const metadata: Metadata = {
+    title: "Profile | Para Po!",
+};
+
 const ProfilePage = () => {
     return (
         <ProfilePageComponent props={{

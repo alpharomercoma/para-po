@@ -1,6 +1,12 @@
 
 import { TransportMarketplaceComponent } from "@/components/transport-marketplace";
 import { db } from "@/db";
+
+import { Metadata } from "next";
+export const metadata: Metadata = {
+    title: "Marketplace | Para Po!",
+};
+
 const rewards = await db.reward.findMany({
     select: {
         id: true,

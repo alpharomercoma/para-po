@@ -1,6 +1,11 @@
 import { ForumTemplateComponent } from "@/components/forum-template";
 import { db } from "@/db";
 
+import { Metadata } from "next";
+export const metadata: Metadata = {
+    title: "Forum | Para Po!",
+};
+
 const forumData = await db.forumPost.findMany({
     take: 5,
     select: {

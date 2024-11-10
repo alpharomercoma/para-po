@@ -5,6 +5,11 @@ import LandingAnimation from "@/components/landing/landingAnimation";
 import Spline from "@splinetool/react-spline";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Metadata } from "next";
+export const metadata: Metadata = {
+  title: "Home | Para Po!",
+};
+
 
 export default function Home() {
   const [destination, setDestination] = useState("");
