@@ -1,5 +1,5 @@
-import NavBar from "@/components/Navbar";
 import NextAuthProvider from "@/components/NextAuthProvider";
+import NavBar from "@/components/nav/navbar";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";

@@ -60,7 +60,7 @@ const ForumTemplateComponent: React.FC<ForumTemplateProps> = ({ props: { forumPo
     }
 
     try {
-      const response = await axios.post('/forum/discussion', {
+      const response = await axios.post('/forum/add-discussion', {
         title,
         body,
         tags: tags.split(',').map(tag => tag.trim()),
@@ -82,8 +82,8 @@ const ForumTemplateComponent: React.FC<ForumTemplateProps> = ({ props: { forumPo
   const featuredPost = featured?.post;
 
   return (
-    <div className="min-h-screen">
-      <main className="container mx-auto p-4 space-y-4">
+    <div className="min-h-screen bg-[url('/forum-bg.jpg')] bg-no-repeat bg-cover bg-fixed">
+      <main className="bg-white container mx-auto p-4 space-y-4">
         {
           featured &&
           <Card className="bg-white shadow-lg border-2 border-blue-200">
@@ -93,32 +93,32 @@ const ForumTemplateComponent: React.FC<ForumTemplateProps> = ({ props: { forumPo
             <CardContent>
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-grow">
-                    <h3 className="font-semibold text-xl mb-2">{
-                      featuredPost?.title
-                    }</h3>
-                    <p className="text-gray-600 mb-4">
-                      {featuredPost?.body}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <Avatar className="w-8 h-8 mr-2">
-                          <AvatarImage src={featuredPost?.createdBy.image || ""} alt={featuredPost?.createdBy.name || ""} />
-                          <AvatarFallback>{featuredPost?.createdBy.name?.charAt(0) || ""}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium">{featuredPost?.createdBy.name}</span>
-                          <span className="text-xs text-gray-500">{new Date(featuredPost?.createdAt || "").toLocaleString()}</span>
-                        </div>
+                  <h3 className="font-semibold text-xl mb-2">{
+                    featuredPost?.title
+                  }</h3>
+                  <p className="text-gray-600 mb-4">
+                    {featuredPost?.body}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Avatar className="w-8 h-8 mr-2">
+                        <AvatarImage src={featuredPost?.createdBy.image || ""} alt={featuredPost?.createdBy.name || ""} />
+                        <AvatarFallback>{featuredPost?.createdBy.name?.charAt(0) || ""}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">{featuredPost?.createdBy.name}</span>
+                        <span className="text-xs text-gray-500">{new Date(featuredPost?.createdAt || "").toLocaleString()}</span>
                       </div>
-                      <Badge variant="secondary">Hot Topic</Badge>
                     </div>
-                  </div>
-                  <div className="md:w-1/4 flex-shrink-0">
-                    <Image src="/placeholder.svg?height=150&width=200" width={200} height={150} alt="Featured discussion" className="w-full h-auto rounded-lg object-cover" />
+                    <Badge variant="secondary">Hot Topic</Badge>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="md:w-1/4 flex-shrink-0">
+                  <Image src="/placeholder.svg?height=150&width=200" width={200} height={150} alt="Featured discussion" className="w-full h-auto rounded-lg object-cover" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         }
 
         <div className="lg:hidden mb-4">
@@ -339,7 +339,9 @@ const ForumTemplateComponent: React.FC<ForumTemplateProps> = ({ props: { forumPo
                         <AvatarFallback>{community.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <h3 className="font-semibold">{community.name}</h3>
+                        <Link href={community.slug}>
+                          <h3 className="font-semibold">{community.name}</h3>
+                        </Link>
                         <p className="text-sm text-gray-500 line-clamp-2">{community.description}</p>
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-xs text-gray-500">

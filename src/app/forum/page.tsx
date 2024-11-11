@@ -1,4 +1,4 @@
-import { ForumTemplateComponent } from "@/components/forum-template";
+import { ForumTemplateComponent } from "@/components/forum/forum";
 import { db } from "@/db";
 
 import { Metadata } from "next";

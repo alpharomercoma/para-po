@@ -1,5 +1,5 @@
 // app/marketplace/page.tsx
-import { TransportMarketplaceComponent } from "@/components/transport-marketplace";
+import { TransportMarketplaceComponent } from "@/components/marketplace/marketplace";
 import { db } from "@/db";
 import { Metadata } from "next";
 

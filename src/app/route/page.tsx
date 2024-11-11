@@ -1,4 +1,4 @@
-import EcoRoute from "@/components/EcoRoute";
+import EcoRoute from "@/components/route/eco-route";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

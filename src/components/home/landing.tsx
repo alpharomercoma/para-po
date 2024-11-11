@@ -1,6 +1,6 @@
 "use client";
 
-import LandingAnimation from "@/components/landing/landingAnimation";
+import LandingAnimation from "@/components/home/animation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Spline from "@splinetool/react-spline";

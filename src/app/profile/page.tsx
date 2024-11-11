@@ -1,5 +1,5 @@
 // app/profile/page.tsx
-import { ProfilePageComponent } from "@/components/profile-page";
+import { ProfilePageComponent } from "@/components/profile/profile-page";
 import { db } from "@/db";
 import { authOptions } from "@/server/auth";
 import { Metadata } from "next";

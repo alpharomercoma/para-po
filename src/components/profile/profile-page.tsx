@@ -10,7 +10,7 @@ import { Bell, Calendar, ChevronRight, CreditCard, HelpCircle, Lock, LogOut, Map
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import React from 'react';
-import AvatarComponent from "./Avatar";
+import AvatarComponent from "../nav/avatar";
 
 interface Props {
   props: {
