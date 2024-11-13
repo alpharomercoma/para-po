@@ -389,7 +389,7 @@ const EcoRoute: React.FC = () => {
 
           // Enhanced directions with cardinal directions
           const directions: DirectionStep[] = route.legs[0].steps.map(
-            (step: any, index: number, steps: any[]) => {
+            (step: DirectionStep, index: number) => {
               const currentCoord = coordinates[index];
               const nextCoord = coordinates[index + 1] || coordinates[index];
               const direction = getDirection(currentCoord, nextCoord);
