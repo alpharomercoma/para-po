@@ -5,12 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import BIKE_LANES from "@/data/bikeLanes";
 import type { LatLngTuple } from "leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import debounce from "lodash/debounce";
 import { Bike, Bus, Car, Leaf, PersonStanding } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
 
 const Map: React.FC<{
   routes: Record<TransportMode, RouteData | null>;

@@ -1,12 +1,12 @@
-import EcoRoute from "@/components/route/eco-route";
+import RouteClient from "@/components/route/route-client";
 import { Metadata } from "next";
-
 export const metadata: Metadata = {
   title: "Route | Para Po!",
 };
 
+
 const RoutePage = () => {
-  return <EcoRoute />;
+  return <RouteClient />;
 };
 
 export default RoutePage;
