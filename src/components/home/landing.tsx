@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState, useCallback, KeyboardEvent } from "react";
-import LandingAnimation from "@/components/home/animation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import LandingAnimation from "../../components/home/animation";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
 import Spline from "@splinetool/react-spline";
 import { Search, MapPin, MessageCircle, Clock, Loader2 } from "lucide-react";
 import Link from "next/link";

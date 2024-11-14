@@ -1,39 +1,63 @@
-'use client';
+"use client";
 
-import { Rewards } from "@/app/marketplace/page";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bus, Coffee, Gift, ShoppingBag, Zap } from 'lucide-react';
-import { useState } from 'react';
+import { Rewards } from "../../app/marketplace/page";
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { Progress } from "../../components/ui/progress";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../../components/ui/tabs";
+import { Bus, Coffee, Gift, ShoppingBag, Zap } from "lucide-react";
+import { useState } from "react";
 
 const rewardCategories = [
-  { name: 'Transport', icon: <Bus className="h-6 w-6" /> },
-  { name: 'Food', icon: <Coffee className="h-6 w-6" /> },
-  { name: 'Shopping', icon: <ShoppingBag className="h-6 w-6" /> },
-  { name: 'Entertainment', icon: <Gift className="h-6 w-6" /> },
+  { name: "Transport", icon: <Bus className="h-6 w-6" /> },
+  { name: "Food", icon: <Coffee className="h-6 w-6" /> },
+  { name: "Shopping", icon: <ShoppingBag className="h-6 w-6" /> },
+  { name: "Entertainment", icon: <Gift className="h-6 w-6" /> },
 ];
 
 const featuredDeals = [
-  { name: 'Double Points Weekend', description: 'Earn 2x points on all rides this weekend', icon: <Zap className="h-6 w-6" /> },
-  { name: 'Flash Sale: 50% Off Rewards', description: 'Limited time offer on select items', icon: <Gift className="h-6 w-6" /> },
+  {
+    name: "Double Points Weekend",
+    description: "Earn 2x points on all rides this weekend",
+    icon: <Zap className="h-6 w-6" />,
+  },
+  {
+    name: "Flash Sale: 50% Off Rewards",
+    description: "Limited time offer on select items",
+    icon: <Gift className="h-6 w-6" />,
+  },
 ];
 interface Props {
   props: {
     rewards: Rewards;
   };
 }
-const TransportMarketplaceComponent: React.FC<Props> = ({ props: { rewards } }) => {
+const TransportMarketplaceComponent: React.FC<Props> = ({
+  props: { rewards },
+}) => {
   const [points] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const filteredRewards = selectedCategory === 'All'
-    ? rewards
-    : rewards.filter(item => item.category.name === selectedCategory);
+  const filteredRewards =
+    selectedCategory === "All"
+      ? rewards
+      : rewards.filter((item) => item.category.name === selectedCategory);
 
-  const pointsToNextReward = rewards.find(reward => reward.points > points)?.points;
+  const pointsToNextReward = rewards.find(
+    (reward) => reward.points > points
+  )?.points;
   const progressTilNextReward = pointsToNextReward
     ? (points / pointsToNextReward) * 100
     : 100;
@@ -51,9 +75,10 @@ const TransportMarketplaceComponent: React.FC<Props> = ({ props: { rewards } }) 
             <Progress value={progressTilNextReward} />
             <p className="text-sm text-muted-foreground mt-2">
               {pointsToNextReward
-                ? `You need ${pointsToNextReward - points} more points to reach your next reward`
-                : 'You have enough points to redeem any reward'}
-
+                ? `You need ${
+                    pointsToNextReward - points
+                  } more points to reach your next reward`
+                : "You have enough points to redeem any reward"}
             </p>
           </CardContent>
         </Card>
@@ -69,7 +94,9 @@ const TransportMarketplaceComponent: React.FC<Props> = ({ props: { rewards } }) 
                   </div>
                   <div>
                     <h3 className="font-semibold">{deal.name}</h3>
-                    <p className="text-sm text-muted-foreground">{deal.description}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {deal.description}
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -85,15 +112,17 @@ const TransportMarketplaceComponent: React.FC<Props> = ({ props: { rewards } }) 
           <TabsContent value="rewards">
             <div className="mb-4 flex space-x-2 overflow-x-auto pb-2">
               <Button
-                variant={selectedCategory === 'All' ? 'default' : 'outline'}
-                onClick={() => setSelectedCategory('All')}
+                variant={selectedCategory === "All" ? "default" : "outline"}
+                onClick={() => setSelectedCategory("All")}
               >
                 All
               </Button>
               {rewardCategories.map((category, index) => (
                 <Button
                   key={index}
-                  variant={selectedCategory === category.name ? 'default' : 'outline'}
+                  variant={
+                    selectedCategory === category.name ? "default" : "outline"
+                  }
                   onClick={() => setSelectedCategory(category.name)}
                 >
                   {category.icon}
@@ -106,14 +135,24 @@ const TransportMarketplaceComponent: React.FC<Props> = ({ props: { rewards } }) 
                 <Card key={index}>
                   <CardContent className="p-4 flex flex-col items-center">
                     <div className="bg-primary/10 p-3 rounded-full mb-2">
-                      {rewardCategories.find(category => category.name === item.category.name)?.icon}
+                      {
+                        rewardCategories.find(
+                          (category) => category.name === item.category.name
+                        )?.icon
+                      }
                     </div>
                     <h3 className="font-semibold text-center">{item.name}</h3>
-                    <p className="text-sm text-muted-foreground">{item.points} points</p>
-                    <Badge variant="secondary" className="mt-2">{item.category.name}</Badge>
+                    <p className="text-sm text-muted-foreground">
+                      {item.points} points
+                    </p>
+                    <Badge variant="secondary" className="mt-2">
+                      {item.category.name}
+                    </Badge>
                   </CardContent>
                   <CardFooter>
-                    <Button className="w-full" disabled={points < item.points}>Redeem</Button>
+                    <Button className="w-full" disabled={points < item.points}>
+                      Redeem
+                    </Button>
                   </CardFooter>
                 </Card>
               ))}

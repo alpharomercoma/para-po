@@ -1,4 +1,4 @@
-import Landing from "@/components/home/landing";
+import Landing from "../components/home/landing";
 import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Home | Para Po!",

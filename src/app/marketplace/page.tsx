@@ -1,6 +1,5 @@
 // app/marketplace/page.tsx
-import { TransportMarketplaceComponent } from "@/components/marketplace/marketplace";
-
+import { TransportMarketplaceComponent } from "../../components/marketplace/marketplace";
 import { db } from "../../../src/db/index";
 import { Metadata } from "next";
 

@@ -1,5 +1,5 @@
-import { db } from "@/db/index";
-import { env } from "@/env";
+import { db } from "../db/index";
+import { env } from "../env";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import {
     getServerSession,

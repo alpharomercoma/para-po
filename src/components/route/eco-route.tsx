@@ -1,9 +1,14 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import BIKE_LANES from "@/data/bikeLanes";
+import { Button } from "../../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { Input } from "../../components/ui/input";
+import BIKE_LANES from "../../data/bikeLanes";
 import type { LatLngTuple } from "leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";

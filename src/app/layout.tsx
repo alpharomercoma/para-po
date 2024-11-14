@@ -1,5 +1,5 @@
-import NextAuthProvider from "@/components/NextAuthProvider";
-import NavBar from "@/components/nav/navbar";
+import NextAuthProvider from "../components/NextAuthProvider";
+import NavBar from "../components/nav/navbar";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -40,37 +40,43 @@ const ttNorms = localFont({
 });
 export const metadata: Metadata = {
   title: "Para Po!",
-  description: "Para Po! is a web application that helps users find the most eco-friendly route to their destination.",
+  description:
+    "Para Po! is a web application that helps users find the most eco-friendly route to their destination.",
   applicationName: "Para Po!",
-  keywords: ["eco-friendly", "route", "transportation", "carbon footprint", "sustainability"],
+  keywords: [
+    "eco-friendly",
+    "route",
+    "transportation",
+    "carbon footprint",
+    "sustainability",
+  ],
   creator: "Para Po! Team",
   robots: "index, follow",
   icons: "https://parapo.vercel.app/favicon.ico",
   manifest: "https://parapo.vercel.app/site.webmanifest",
   authors: [
     {
-      name: "Fionna Desserei Baculi"
+      name: "Fionna Desserei Baculi",
     },
     {
-      name: "France Estrella"
+      name: "France Estrella",
     },
     {
-      name: "Marc Esquivel"
+      name: "Marc Esquivel",
     },
     {
-      name: "Onin Pilueta"
+      name: "Onin Pilueta",
     },
     {
-      name: "Xten Tolentino"
+      name: "Xten Tolentino",
     },
     {
-      name: "Alpha Romer Coma"
+      name: "Alpha Romer Coma",
     },
     {
-      name: "Rab Karl Colasino"
+      name: "Rab Karl Colasino",
     },
   ],
-
 };
 
 export default function RootLayout({
@@ -80,13 +86,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-          className={`${ttNorms.variable} antialiased bg-white`}
-      >
+      <body className={`${ttNorms.variable} antialiased bg-white`}>
         <NextAuthProvider>
           <NavBar />
           {children}
-      </NextAuthProvider>
+        </NextAuthProvider>
       </body>
     </html>
   );

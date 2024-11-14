@@ -1,6 +1,6 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "../../components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "../../components/ui/sheet";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import { FaRoute } from "react-icons/fa";
@@ -115,7 +115,7 @@ const NavBar: React.FC = () => {
               className="w-full items-center"
               size="lg"
               variant="outline"
-              onClick={() => signIn('google')}
+              onClick={() => signIn("google")}
             >
               <FcGoogle className="h-12 w-12" />
               Signin

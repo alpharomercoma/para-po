@@ -1,5 +1,5 @@
 import Axios from "axios";
-import { env } from "@/env";
+import { env } from "../env";
 const axios = Axios.create({
     baseURL: env.NEXT_PUBLIC_APP_URL + "/api",
     headers: {
