@@ -11,6 +11,7 @@ import debounce from "lodash/debounce";
 import { Bike, Bus, Car, Leaf, PersonStanding } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 const Map: React.FC<{
   routes: Record<TransportMode, RouteData | null>;
@@ -312,6 +313,8 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
 };
 
 const EcoRoute: React.FC = () => {
+  const searchParams = useSearchParams();
+
   // Move all hooks to the top level
   const [isMounted, setIsMounted] = useState(false);
   const [originValue, setOriginValue] = useState<string>("");
@@ -348,6 +351,57 @@ const EcoRoute: React.FC = () => {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   };
+
+  // Effect to handle URL parameters and initialize locations
+  useEffect(() => {
+    if (searchParams) {
+      const originLat = searchParams.get("originLat");
+      const originLon = searchParams.get("originLon");
+      const originName = searchParams.get("originName");
+      const destination = searchParams.get("destination");
+
+      if (originLat && originLon && originName) {
+        setOriginValue(originName);
+        setOriginLocation({
+          name: originName,
+          lat: parseFloat(originLat),
+          lon: parseFloat(originLon),
+        });
+      }
+
+      if (destination) {
+        setDestinationValue(destination);
+        const fetchDestination = async () => {
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+                destination
+              )}&limit=1`
+            );
+            const data = await response.json();
+            if (data && data[0]) {
+              setDestinationLocation({
+                name: destination,
+                lat: parseFloat(data[0].lat),
+                lon: parseFloat(data[0].lon),
+              });
+            }
+          } catch (error) {
+            console.error("Error fetching destination coordinates:", error);
+          }
+        };
+        fetchDestination();
+      }
+    }
+  }, [searchParams]);
+
+  // Effect to automatically calculate routes when both locations are set
+  useEffect(() => {
+    if (originLocation && destinationLocation) {
+      calculateRoutes();
+    }
+  }, [originLocation, destinationLocation]);
+
   // Effect to handle mounting
   useEffect(() => {
     setIsMounted(true);
@@ -378,16 +432,13 @@ const EcoRoute: React.FC = () => {
 
           const distanceKm = route.distance / 1000;
 
-          // Calculate CO2 impact
           const co2Impact =
             mode === TransportMode.CAR
               ? CO2_EMISSIONS.CAR * distanceKm // Emissions for car
               : CO2_EMISSIONS.CAR * distanceKm * -1; // Savings for bike/walk
 
-          // Calculate duration based on mode and average speed
           const duration = (distanceKm / AVERAGE_SPEEDS[mode]) * 60;
 
-          // Enhanced directions with cardinal directions
           const directions: DirectionStep[] = route.legs[0].steps.map(
             (step: DirectionStep, index: number) => {
               const currentCoord = coordinates[index];
@@ -509,8 +560,7 @@ const EcoRoute: React.FC = () => {
         const prev = arr[idx - 1];
         const distLat = curr[0] - prev[0];
         const distLng = curr[1] - prev[1];
-        // Haversine formula simplified for short distances
-        const distance = Math.sqrt(distLat * distLat + distLng * distLng) * 111; // 111km per degree at equator
+        const distance = Math.sqrt(distLat * distLat + distLng * distLng) * 111;
         return acc + distance;
       }, 0);
 

@@ -5,12 +5,16 @@ import LandingAnimation from "@/components/home/animation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Spline from "@splinetool/react-spline";
-import { Search, MapPin, MessageCircle, Clock } from "lucide-react";
+import { Search, MapPin, MessageCircle, Clock, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Landing() {
+  const router = useRouter();
   const [destination, setDestination] = useState("");
   const [isMobile, setIsMobile] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationError, setLocationError] = useState("");
 
   useEffect(() => {
     const checkMobile = () => {
@@ -22,9 +26,49 @@ export default function Landing() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const getUserLocation = async () => {
+    setIsLocating(true);
+    setLocationError("");
+
+    try {
+      const position = await new Promise<GeolocationPosition>(
+        (resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject);
+        }
+      );
+
+      // Reverse geocode the coordinates to get the address
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}`
+      );
+      const data = await response.json();
+
+      // Navigate to the route page with both origin and destination
+      if (destination) {
+        const params = new URLSearchParams({
+          originLat: position.coords.latitude.toString(),
+          originLon: position.coords.longitude.toString(),
+          originName: data.display_name,
+          destination,
+        });
+
+        router.push(`/route?${params.toString()}`);
+      }
+    } catch (error) {
+      console.error("Error getting location:", error);
+      setLocationError(
+        "Unable to get your location. Please allow location access and try again."
+      );
+    } finally {
+      setIsLocating(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Destination:", destination);
+    if (destination) {
+      await getUserLocation();
+    }
   };
 
   return (
@@ -44,7 +88,6 @@ export default function Landing() {
           </div>
         </div>
 
-        {/* Enhanced Form Section */}
         <div className="w-full px-4 lg:px-0 space-y-6">
           <div className="text-center mb-4">
             <h2 className="text-2xl font-semibold text-gray-800">
@@ -69,12 +112,23 @@ export default function Landing() {
                 className="pl-10"
               />
             </div>
-            <Button type="submit">Go</Button>
+            <Button
+              type="submit"
+              disabled={!destination || isLocating}
+              className="relative"
+            >
+              {isLocating ? <Loader2 className="h-4 w-4 animate-spin" /> : "Go"}
+            </Button>
           </form>
+
+          {locationError && (
+            <div className="text-red-500 text-sm text-center">
+              {locationError}
+            </div>
+          )}
 
           {isMobile && (
             <>
-              {/* Quick Actions */}
               <div className="grid grid-cols-2 gap-4 mt-8 max-w-sm mx-auto">
                 <Button
                   variant="outline"
@@ -94,7 +148,6 @@ export default function Landing() {
                 </Link>
               </div>
 
-              {/* Recent Searches */}
               <div className="mt-8 max-w-sm mx-auto">
                 <h3 className="text-sm font-medium text-gray-500 mb-3">
                   Recent Searches
