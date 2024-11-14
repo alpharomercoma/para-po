@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { db } from '@/db';
+import { db } from '@/db/index';
 import { authOptions } from '@/server/auth';
 export async function POST(request: NextRequest) {
     // Get session using the new getServerSession
