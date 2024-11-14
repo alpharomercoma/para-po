@@ -60,7 +60,7 @@ const ForumTemplateComponent: React.FC<ForumTemplateProps> = ({ props: { forumPo
     }
 
     try {
-      const response = await axios.post('/forum/add-discussion', {
+      const response = await axios.post('/forum/post-discussion', {
         title,
         body,
         tags: tags.split(',').map(tag => tag.trim()),
