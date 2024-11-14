@@ -1,4 +1,4 @@
-import { db } from "@/db";
+import { db } from "@/db/index";
 import { communities, forumTags, rewardCategory, rewards, user } from "./json/export";
 const prismaUserCategory = db.user.createMany({
     data: user

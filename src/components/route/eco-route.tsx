@@ -315,7 +315,6 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
 const EcoRoute: React.FC = () => {
   const searchParams = useSearchParams();
 
-  // Move all hooks to the top level
   const [isMounted, setIsMounted] = useState(false);
   const [originValue, setOriginValue] = useState<string>("");
   const [destinationValue, setDestinationValue] = useState<string>("");
@@ -352,7 +351,6 @@ const EcoRoute: React.FC = () => {
     return R * c;
   };
 
-  // Effect to handle URL parameters and initialize locations
   useEffect(() => {
     if (searchParams) {
       const originLat = searchParams.get("originLat");
@@ -395,7 +393,6 @@ const EcoRoute: React.FC = () => {
     }
   }, [searchParams]);
 
-  // Effect to automatically calculate routes when both locations are set
   useEffect(() => {
     if (originLocation && destinationLocation) {
       calculateRoutes();

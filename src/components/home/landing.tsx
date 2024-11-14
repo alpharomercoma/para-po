@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, KeyboardEvent } from "react";
 import LandingAnimation from "@/components/home/animation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,17 +8,27 @@ import Spline from "@splinetool/react-spline";
 import { Search, MapPin, MessageCircle, Clock, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import debounce from "lodash/debounce";
+
+interface Location {
+  name: string;
+  lat: number;
+  lon: number;
+}
 
 export default function Landing() {
   const router = useRouter();
   const [destination, setDestination] = useState("");
+  const [suggestions, setSuggestions] = useState<Location[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < 1024);
     };
 
     checkMobile();
@@ -26,7 +36,74 @@ export default function Landing() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const getUserLocation = async () => {
+  const fetchSuggestions = useCallback(
+    debounce(async (searchText: string) => {
+      if (searchText.length < 3) {
+        setSuggestions([]);
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+            searchText
+          )}&limit=5`
+        );
+        const data = (await response.json()) as {
+          display_name: string;
+          lat: string;
+          lon: string;
+        }[];
+
+        setSuggestions(
+          data.map((item) => ({
+            name: item.display_name,
+            lat: parseFloat(item.lat),
+            lon: parseFloat(item.lon),
+          }))
+        );
+        setShowSuggestions(true);
+        setSelectedIndex(-1); // Reset selection when new suggestions arrive
+      } catch (error) {
+        console.error("Error fetching suggestions:", error);
+        setSuggestions([]);
+      }
+    }, 300),
+    []
+  );
+
+  useEffect(() => {
+    fetchSuggestions(destination);
+  }, [destination, fetchSuggestions]);
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (!showSuggestions || suggestions.length === 0) return;
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setSelectedIndex((prev) =>
+          prev < suggestions.length - 1 ? prev + 1 : prev
+        );
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+        break;
+      case "Enter":
+        e.preventDefault();
+        if (selectedIndex >= 0) {
+          handleSuggestionClick(suggestions[selectedIndex]);
+        }
+        break;
+      case "Escape":
+        setShowSuggestions(false);
+        setSelectedIndex(-1);
+        break;
+    }
+  };
+
+  const getUserLocation = async (selectedDestination: string) => {
     setIsLocating(true);
     setLocationError("");
 
@@ -44,12 +121,12 @@ export default function Landing() {
       const data = await response.json();
 
       // Navigate to the route page with both origin and destination
-      if (destination) {
+      if (selectedDestination) {
         const params = new URLSearchParams({
           originLat: position.coords.latitude.toString(),
           originLon: position.coords.longitude.toString(),
           originName: data.display_name,
-          destination,
+          destination: selectedDestination,
         });
 
         router.push(`/route?${params.toString()}`);
@@ -67,9 +144,29 @@ export default function Landing() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (destination) {
-      await getUserLocation();
+      await getUserLocation(destination);
     }
   };
+
+  const handleSuggestionClick = async (suggestion: Location) => {
+    setDestination(suggestion.name);
+    setSuggestions([]);
+    setShowSuggestions(false);
+    setSelectedIndex(-1);
+    await getUserLocation(suggestion.name);
+  };
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowSuggestions(false);
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen">
@@ -100,7 +197,7 @@ export default function Landing() {
 
           <form
             onSubmit={handleSubmit}
-            className="flex w-full max-w-sm mx-auto items-center space-x-2"
+            className="flex w-full max-w-sm mx-auto items-center space-x-2 relative"
           >
             <div className="relative flex-grow">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -109,8 +206,30 @@ export default function Landing() {
                 placeholder="Where are you going?"
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
+                onKeyDown={handleKeyDown}
                 className="pl-10"
+                onFocus={() => setShowSuggestions(true)}
               />
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute w-full mt-1 bg-white rounded-md shadow-lg z-50 max-h-48 overflow-auto">
+                  {suggestions.map((suggestion, index) => (
+                    <div
+                      key={index}
+                      className={`px-4 py-2 cursor-pointer ${
+                        index === selectedIndex
+                          ? "bg-blue-100 text-blue-900"
+                          : "hover:bg-gray-100"
+                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSuggestionClick(suggestion);
+                      }}
+                    >
+                      {suggestion.name}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <Button
               type="submit"
