@@ -1,6 +1,6 @@
 // app/profile/page.tsx
 import { ProfilePageComponent } from "@/components/profile/profile-page";
-import { db } from "@/db/index";
+import { db } from "../../../src/db/index";
 import { authOptions } from "@/server/auth";
 import { Metadata } from "next";
 import { getServerSession } from "next-auth";

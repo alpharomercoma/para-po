@@ -1,6 +1,5 @@
 import { ForumTemplateComponent } from "@/components/forum/forum";
-import { db } from "@/db/index";
-
+import { db } from "./../../../src/db/index";
 import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Forum | Para Po!",
